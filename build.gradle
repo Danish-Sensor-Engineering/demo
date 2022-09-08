@@ -67,11 +67,11 @@ jlink {
         noConsole = true
     }
 
-    // Only works with Java 14 (and later)
+    // Only works from Java 14+
     jpackage {
         imageName = "ODS-Explorer"
         skipInstaller = true
-        installerName = "ODS-Explorer"
+        installerName = "ODS-Explorer-${osdetector.arch}"
         installerOptions += [
                 '--vendor', 'Danish Sensor Engineering',
                 '--description', 'Danish Sensor Engineering - ODS Explorer',
