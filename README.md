@@ -7,7 +7,7 @@ Desktop application for testing/demoing our [libsensor](https://github.com/Danis
 
 ## Download
 
-Find the [latest release](/releases/latest) for your operating-system and download installer.
+Find the [latest release](https://github.com/Danish-Sensor-Engineering/explorer/releases/latest) for your operating-system and download installer.
 
 ## Notes
 
