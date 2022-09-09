@@ -21,7 +21,7 @@ import java.util.TimerTask;
 public class MainController implements TelegramListener {
 
     private final static Logger log = LoggerFactory.getLogger(MainController.class);
-    @FXML private Spinner spinnerAvg;
+    @FXML private Spinner<Integer> spinnerAvg;
 
     @FXML private ChoiceBox<String> choiceSensorType;
 
@@ -46,16 +46,15 @@ public class MainController implements TelegramListener {
     private final SerialSensor sensor = new SerialSensor();
     private Integer measurementCounter = 0;
 
-    private final int maxMeasurementElements = 75;
+    private final int maxMeasurementElements = 100;
 
-    Random rand = new Random();
     private String selectedType;
     private String selectedPort;
     private Integer selectedBaud;
 
 
     @FXML public void initialize() {
-        log.info("initialize()");
+        log.debug("initialize()");
         choiceSensorType.getItems().addAll("16bit", "18bit");
         choiceSensorBaudrate.getItems().addAll(38400, 115200);
         choiceSensorSerialPort.getItems().addAll(SerialSensor.getSerialPorts());
@@ -65,7 +64,6 @@ public class MainController implements TelegramListener {
                 spinnerAvg.getEditor().setText(oldValue);
             }
         });
-
 
         try {
             numberSeries.setName("Measurements");
@@ -77,31 +75,23 @@ public class MainController implements TelegramListener {
 
 
     @FXML private void onSelectModel(ActionEvent e) {
-        log.info("onSelectModel()");
-        log.info(e.toString());
         log.info(choiceSensorType.getSelectionModel().getSelectedItem());
         selectedType = choiceSensorType.getSelectionModel().getSelectedItem();
     }
 
     @FXML private void onSelectPort(ActionEvent e) {
-        log.info("onSelectPort()");
-        log.info(e.toString());
         log.info(choiceSensorSerialPort.getSelectionModel().getSelectedItem());
         selectedPort = choiceSensorSerialPort.getSelectionModel().getSelectedItem();
     }
 
     @FXML private void onSelectBaud(ActionEvent e) {
-        log.info("onSelectBaud()");
-        log.info(e.toString());
         log.info(String.valueOf(choiceSensorBaudrate.getSelectionModel().getSelectedItem()));
         selectedBaud = choiceSensorBaudrate.getSelectionModel().getSelectedItem();
     }
 
 
     @FXML private void onButtonStart() {
-        log.info("onButtonStart()");
-
-        Integer avgOverNumber = (Integer) spinnerAvg.getValue();
+        log.debug("onButtonStart()");
 
         if(selectedType == null || selectedPort == null || selectedBaud == null) {
             log.warn("onButtonStart() - options missing");
@@ -117,7 +107,7 @@ public class MainController implements TelegramListener {
             default -> log.warn("Unknown sensor type: " + selectedType);
         }
 
-        sensor.doAverageOver = avgOverNumber;
+        sensor.doAverageOver = spinnerAvg.getValue();
         sensor.openPort(selectedPort, selectedBaud);
 
         sensor.addEventListener(this);
@@ -125,7 +115,7 @@ public class MainController implements TelegramListener {
 
 
     @FXML private void onButtonStop() {
-        log.info("onButtonStop()");
+        log.debug("onButtonStop()");
 
         sensor.removeEventListener(this);
         sensor.closePort();
@@ -141,9 +131,13 @@ public class MainController implements TelegramListener {
          Platform.runLater(() -> {
              lastDistanceResult.setText(Integer.toString(measurement));
              numberSeries.getData().add(new XYChart.Data<>(++measurementCounter, measurement));
-             if(numberSeries.getData().size() > maxMeasurementElements) {
-                 numberSeries.getData().remove(0);
+
+             // Remove old elements from beginning of series
+             int numberOfElements = numberSeries.getData().size();
+             if(numberOfElements > maxMeasurementElements + 10) {
+                 numberSeries.getData().remove(0, numberOfElements - maxMeasurementElements);
              }
+
              lastErrorMessage.setText("");
          });
 

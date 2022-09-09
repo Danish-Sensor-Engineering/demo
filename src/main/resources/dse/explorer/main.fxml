@@ -5,20 +5,20 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane minHeight="0.0" minWidth="0.0" prefHeight="480.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dse.explorer.MainController">
+<BorderPane minHeight="0.0" minWidth="0.0" prefHeight="480.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dse.explorer.MainController">
 
     <padding>
-        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
     </padding>
 
     <top>
         <GridPane>
             <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
             </columnConstraints>
             <rowConstraints>
                 <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
@@ -26,40 +26,43 @@
 
             <HBox alignment="CENTER" spacing="5.0">
                 <Label>Model</Label>
-                <ChoiceBox fx:id="choiceSensorType" onAction="#onSelectModel" value=" - Select - " />
+                <ChoiceBox fx:id="choiceSensorType" minWidth="100.0" onAction="#onSelectModel" value=" - Select - " />
             </HBox>
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="1">
                 <Label>Port</Label>
-                <ChoiceBox fx:id="choiceSensorSerialPort" onAction="#onSelectPort" value=" - Select - " />
+                <ChoiceBox fx:id="choiceSensorSerialPort" minWidth="100.0" onAction="#onSelectPort" value=" - Select - " />
             </HBox>
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="2">
                 <Label>Baud</Label>
-                <ChoiceBox fx:id="choiceSensorBaudrate" onAction="#onSelectBaud" value=" - Select - " />
+                <ChoiceBox fx:id="choiceSensorBaudrate" minWidth="100.0" onAction="#onSelectBaud" value=" - Select - " />
             </HBox>
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="3">
                 <Label>Avg.</Label>
-                <Spinner fx:id="spinnerAvg" editable="true" initialValue="25" max="500" min="0" prefWidth="100.0" />
+                <Spinner fx:id="spinnerAvg" editable="true" initialValue="25" max="500" min="0" prefWidth="75.0" />
             </HBox>
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="4">
-                <Button fx:id="btnStart" onAction="#onButtonStart">Start</Button>
-                <Button fx:id="btnStop" disable="true" onAction="#onButtonStop">Stop</Button>
+                <Button fx:id="btnStart" minWidth="55.0" onAction="#onButtonStart">Start</Button>
+                <Button fx:id="btnStop" disable="true" minWidth="55.0" onAction="#onButtonStop">Stop</Button>
             </HBox>
+         <opaqueInsets>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </opaqueInsets>
 
         </GridPane>
     </top>
 
 
     <center>
-        <LineChart fx:id="dataChart" createSymbols="false" legendVisible="false" title="Measurement Data" verticalZeroLineVisible="false">
+        <LineChart fx:id="dataChart" createSymbols="false" legendVisible="false" verticalZeroLineVisible="false">
             <xAxis>
-                <NumberAxis forceZeroInRange="false" tickLabelGap="5.0" tickLength="5.0" tickMarkVisible="false" tickUnit="1.0" minorTickVisible="false" tickLabelsVisible="false" />
+                <NumberAxis forceZeroInRange="false" minorTickVisible="false" side="TOP" tickLabelGap="5.0" tickLabelsVisible="false" tickLength="5.0" tickMarkVisible="false" tickUnit="1.0" />
             </xAxis>
             <yAxis>
-                <NumberAxis forceZeroInRange="false" label="Distance" minorTickLength="2" side="LEFT" tickLabelGap="5.0" tickLength="5.0" tickUnit="1.0" />
+                <NumberAxis forceZeroInRange="false" minorTickCount="500" minorTickLength="2" side="TOP" tickLabelGap="5.0" tickLength="5.0" tickUnit="1000.0" upperBound="0.0" />
             </yAxis>
          <padding>
             <Insets bottom="10.0" top="10.0" />
