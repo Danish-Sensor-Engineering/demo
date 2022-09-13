@@ -11,6 +11,14 @@ Find the [latest release](https://github.com/Danish-Sensor-Engineering/explorer/
 
 ## Notes
 
+Plug-in the sensor before starting the application.
+
+
+### Windows
+
+Installer is not signed, so Windows will give you warnings. 
+The ODS-Explorer application might need to run as Administrator, to get access to the serial ports.
+
 
 ### Linux
 
