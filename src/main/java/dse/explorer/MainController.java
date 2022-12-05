@@ -15,8 +15,6 @@ import javafx.scene.control.Spinner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Random;
-import java.util.TimerTask;
 
 public class MainController implements TelegramListener {
 
@@ -44,9 +42,8 @@ public class MainController implements TelegramListener {
 
     // DSE Sensor Library
     private final SerialSensor sensor = new SerialSensor();
-    private Integer measurementCounter = 0;
-
     private final int maxMeasurementElements = 100;
+    private Integer measurementCounter = 0;
 
     private String selectedType;
     private String selectedPort;
@@ -69,7 +66,7 @@ public class MainController implements TelegramListener {
             numberSeries.setName("Measurements");
             dataChart.setData(observableList);
             observableList.add(numberSeries);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 

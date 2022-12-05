@@ -57,12 +57,12 @@
 
 
     <center>
-        <LineChart fx:id="dataChart" createSymbols="false" legendVisible="false" verticalZeroLineVisible="false">
+        <LineChart fx:id="dataChart" createSymbols="false" legendVisible="false" horizontalGridLinesVisible="true">
             <xAxis>
-                <NumberAxis forceZeroInRange="false" minorTickVisible="false" side="TOP" tickLabelGap="5.0" tickLabelsVisible="false" tickLength="5.0" tickMarkVisible="false" tickUnit="1.0" />
+                <NumberAxis forceZeroInRange="false" minorTickVisible="false" side="TOP" tickLabelGap="5.0" tickLabelsVisible="false" tickLength="5.0" tickMarkVisible="false" />
             </xAxis>
             <yAxis>
-                <NumberAxis forceZeroInRange="false" minorTickCount="500" minorTickLength="2" side="TOP" tickLabelGap="5.0" tickLength="5.0" tickUnit="1000.0" upperBound="0.0" />
+                <NumberAxis forceZeroInRange="false" minorTickVisible="false" side="TOP" tickLabelGap="5.0" tickLength="5.0" tickUnit="1000.0" />
             </yAxis>
          <padding>
             <Insets bottom="10.0" top="10.0" />
