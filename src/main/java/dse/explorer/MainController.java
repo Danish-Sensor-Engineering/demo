@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 public class MainController implements TelegramListener {
 
     private final static Logger log = LoggerFactory.getLogger(MainController.class);
+
     @FXML private Spinner<Integer> spinnerAvg;
 
     @FXML private ChoiceBox<String> choiceSensorType;
