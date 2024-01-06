@@ -26,7 +26,7 @@ public class MainController implements TelegramListener {
 
     @FXML private ChoiceBox<String> choiceSensorSerialPort;
 
-    @FXML private ChoiceBox<Integer> choiceSensorBaudrate;
+    @FXML private ChoiceBox<Integer> choiceSensorBaudRate;
 
     @FXML private Button btnStart;
 
@@ -54,7 +54,7 @@ public class MainController implements TelegramListener {
     @FXML public void initialize() {
         log.debug("initialize()");
         choiceSensorType.getItems().addAll("16bit", "18bit");
-        choiceSensorBaudrate.getItems().addAll(38400, 115200);
+        choiceSensorBaudRate.getItems().addAll(38400, 115200);
         choiceSensorSerialPort.getItems().addAll(SerialSensor.getSerialPorts());
 
         spinnerAvg.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
@@ -83,8 +83,8 @@ public class MainController implements TelegramListener {
     }
 
     @FXML private void onSelectBaud(ActionEvent e) {
-        log.info(String.valueOf(choiceSensorBaudrate.getSelectionModel().getSelectedItem()));
-        selectedBaud = choiceSensorBaudrate.getSelectionModel().getSelectedItem();
+        log.info(String.valueOf(choiceSensorBaudRate.getSelectionModel().getSelectedItem()));
+        selectedBaud = choiceSensorBaudRate.getSelectionModel().getSelectedItem();
     }
 
 
