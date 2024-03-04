@@ -5,9 +5,9 @@ module dse.explorer {
     requires javafx.fxml;
     requires atlantafx.base;
 
-    requires org.slf4j;
-    requires libsensor;
     requires com.fazecast.jSerialComm;
+    requires dse.libsensor;
+    requires org.slf4j;
 
     opens dse.explorer to javafx.fxml;
     exports dse.explorer;
