@@ -6,7 +6,7 @@ module dse.explorer {
     requires atlantafx.base;
 
     requires com.fazecast.jSerialComm;
-    requires dse.libsensor;
+    requires dse.libods;
     requires org.slf4j;
 
     opens dse.explorer to javafx.fxml;
