@@ -1,6 +1,6 @@
 package dse.explorer;
 
-import dse.libsensor.*;
+import dse.libods.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -20,7 +20,8 @@ public class MainController implements TelegramListener {
 
     private final static Logger log = LoggerFactory.getLogger(MainController.class);
 
-    @FXML private Spinner<Integer> spinnerAvg;
+    @FXML private Spinner<Integer> skip;
+    @FXML private Spinner<Integer> points;
 
     @FXML private ChoiceBox<String> choiceSensorType;
 
@@ -32,41 +33,61 @@ public class MainController implements TelegramListener {
 
     @FXML private Button btnStop;
 
-    @FXML private LineChart<Integer, Integer> dataChart;
+    @FXML private LineChart<Number, Number> dataChart;
 
     @FXML private Label lastErrorMessage;
 
     @FXML private Label lastDistanceResult;
 
-    private final ObservableList<XYChart.Series<Integer, Integer>> observableList = FXCollections.observableArrayList();
-    private final XYChart.Series<Integer, Integer> numberSeries = new XYChart.Series<>();
+    @FXML private Label averageDistance;
+    @FXML private Label minimumDistance;
+    @FXML private Label maximumDistance;
+
+
+    private final ObservableList<XYChart.Series<Number, Number>> observableList1 = FXCollections.observableArrayList();
+    private final ObservableList<XYChart.Series<Number, Number>> observableList2 = FXCollections.observableArrayList();
+    private final XYChart.Series<Number, Number> numberSeries1 = new XYChart.Series<>();
+    private final XYChart.Series<Number, Number> numberSeries2 = new XYChart.Series<>();
 
     // DSE Sensor Library
-    private final SerialSensor sensor = new SerialSensor();
-    private final int maxMeasurementElements = 100;
-    private Integer measurementCounter = 0;
+    private final SerialSensor serialSensor = new SerialSensor();
+    private final TestSensor testSensor = new TestSensor();
 
     private String selectedType;
     private String selectedPort;
     private Integer selectedBaud;
+    private long counter = 0L;
 
 
     @FXML public void initialize() {
         log.debug("initialize()");
         choiceSensorType.getItems().addAll("16bit", "18bit");
         choiceSensorBaudRate.getItems().addAll(38400, 115200);
+        choiceSensorSerialPort.getItems().add("Test");
         choiceSensorSerialPort.getItems().addAll(SerialSensor.getSerialPorts());
 
-        spinnerAvg.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+        skip.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             if(!newValue.matches("\\d*")) {
-                spinnerAvg.getEditor().setText(oldValue);
+                skip.getEditor().setText(oldValue);
+            }
+        });
+
+         points.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            if(!newValue.matches("\\d*")) {
+                points.getEditor().setText(oldValue);
             }
         });
 
         try {
-            numberSeries.setName("Measurements");
-            dataChart.setData(observableList);
-            observableList.add(numberSeries);
+
+            numberSeries1.setName("Distance");
+            observableList1.add(numberSeries1);
+            dataChart.getData().addAll(observableList1);
+
+            numberSeries2.setName("Average");
+            observableList2.add(numberSeries2);
+            dataChart.getData().addAll(observableList2);
+
         } catch (Exception ignored) {
         }
     }
@@ -98,25 +119,38 @@ public class MainController implements TelegramListener {
 
         btnStart.setDisable(true);
         btnStop.setDisable(false);
+        lastErrorMessage.setText("");
 
-        switch (selectedType) {
-            case "16bit" -> sensor.setTelegramHandler(new TelegramHandler16Bit());
-            case "18bit" -> sensor.setTelegramHandler(new TelegramHandler18Bit());
-            default -> log.warn("Unknown sensor type: " + selectedType);
+        if(selectedPort.equals("Test")) {
+            testSensor.setTelegramHandler(new TelegramHandler16Bit());
+            testSensor.addEventListener(this);
+            testSensor.start();
+        } else {
+            switch (selectedType) {
+                case "16bit" -> serialSensor.setTelegramHandler(new TelegramHandler16Bit());
+                case "18bit" -> serialSensor.setTelegramHandler(new TelegramHandler18Bit());
+                default -> log.warn("Unknown sensor type: " + selectedType);
+            }
+
+            serialSensor.interval = skip.getValue();
+            serialSensor.movingPoints = points.getValue();
+
+            serialSensor.openPort(selectedPort, selectedBaud);
+            serialSensor.addEventListener(this);
         }
-
-        sensor.doAverageOver = spinnerAvg.getValue();
-        sensor.openPort(selectedPort, selectedBaud);
-
-        sensor.addEventListener(this);
     }
 
 
     @FXML private void onButtonStop() {
         log.debug("onButtonStop()");
 
-        sensor.removeEventListener(this);
-        sensor.closePort();
+        if(selectedPort.equals("Test")) {
+            testSensor.removeEventListener(this);
+            testSensor.stop();
+        } else {
+            serialSensor.removeEventListener(this);
+            serialSensor.closePort();
+        }
 
         btnStart.setDisable(false);
         btnStop.setDisable(true);
@@ -126,17 +160,33 @@ public class MainController implements TelegramListener {
      public void onTelegramResultEvent(TelegramResultEvent event) {
 
         int measurement = event.getMeasurement();
-         Platform.runLater(() -> {
-             lastDistanceResult.setText(Integer.toString(measurement));
-             numberSeries.getData().add(new XYChart.Data<>(++measurementCounter, measurement));
+        int average = event.getAverage();
+        int minimum = event.getMinimum();
+        int maximum = event.getMaximum();
 
-             // Remove old elements from beginning of series
-             int numberOfElements = numberSeries.getData().size();
-             if(numberOfElements > maxMeasurementElements + 10) {
-                 numberSeries.getData().remove(0, numberOfElements - maxMeasurementElements);
-             }
+        Platform.runLater(() -> {
+            lastDistanceResult.setText(Integer.toString(measurement));
+            averageDistance.setText(String.valueOf(average));
+            minimumDistance.setText(String.valueOf(minimum));
+            maximumDistance.setText(String.valueOf(maximum));
 
-             lastErrorMessage.setText("");
+            numberSeries1.getData().add(new XYChart.Data<>(counter, measurement));
+            numberSeries2.getData().add(new XYChart.Data<>(counter, average));
+
+            if(numberSeries1.getData().size() > points.getValue()) {
+                numberSeries1.getData().remove(0, 1);
+            }
+
+            if(numberSeries2.getData().size() > points.getValue()) {
+                numberSeries2.getData().remove(0, 1);
+            }
+
+            counter++;
+            if(counter > points.getValue()) {
+                counter = 0L;
+                lastErrorMessage.setText("");
+            }
+
          });
 
      }

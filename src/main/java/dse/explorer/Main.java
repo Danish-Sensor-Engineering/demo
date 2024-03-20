@@ -1,5 +1,6 @@
 package dse.explorer;
 
+import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -20,9 +21,9 @@ public class Main extends javafx.application.Application {
 
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("main.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        scene.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+        scene.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
         stage.getIcons().add(new Image(Objects.requireNonNull(Main.class.getResourceAsStream("/icon.png"))));
-        stage.setTitle("ODS Explorer");
+        stage.setTitle("ODS Explorer - Danish Sensor Engineering");
         stage.setScene(scene);
         stage.show();
 
