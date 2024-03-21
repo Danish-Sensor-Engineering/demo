@@ -7,6 +7,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 public class MainController implements TelegramListener {
 
     private final static Logger log = LoggerFactory.getLogger(MainController.class);
+
 
     @FXML private Spinner<Integer> skip;
     @FXML private Spinner<Integer> points;
@@ -34,6 +36,7 @@ public class MainController implements TelegramListener {
     @FXML private Button btnStop;
 
     @FXML private LineChart<Number, Number> dataChart;
+    @FXML private NumberAxis xAxis;
 
     @FXML private Label lastErrorMessage;
 
@@ -56,7 +59,7 @@ public class MainController implements TelegramListener {
     private String selectedType;
     private String selectedPort;
     private Integer selectedBaud;
-    private long counter = 0L;
+    private int counter = 0;
 
 
     @FXML public void initialize() {
@@ -112,7 +115,7 @@ public class MainController implements TelegramListener {
     @FXML private void onButtonStart() {
         log.debug("onButtonStart()");
 
-        if(selectedType == null || selectedPort == null || selectedBaud == null) {
+        if( selectedPort != "Test" && (selectedPort == null || selectedType == null || selectedBaud == null) ) {
             log.warn("onButtonStart() - options missing");
             return;
         }
@@ -123,8 +126,8 @@ public class MainController implements TelegramListener {
 
         if(selectedPort.equals("Test")) {
             testSensor.setTelegramHandler(new TelegramHandler16Bit());
-            testSensor.addEventListener(this);
             testSensor.start();
+            testSensor.addEventListener(this);
         } else {
             switch (selectedType) {
                 case "16bit" -> serialSensor.setTelegramHandler(new TelegramHandler16Bit());
@@ -133,8 +136,6 @@ public class MainController implements TelegramListener {
             }
 
             serialSensor.interval = skip.getValue();
-            serialSensor.movingPoints = points.getValue();
-
             serialSensor.openPort(selectedPort, selectedBaud);
             serialSensor.addEventListener(this);
         }
@@ -174,17 +175,19 @@ public class MainController implements TelegramListener {
             numberSeries2.getData().add(new XYChart.Data<>(counter, average));
 
             if(numberSeries1.getData().size() > points.getValue()) {
-                numberSeries1.getData().remove(0, 1);
+                numberSeries1.getData().remove(0, 2);
             }
 
             if(numberSeries2.getData().size() > points.getValue()) {
-                numberSeries2.getData().remove(0, 1);
+                numberSeries2.getData().remove(0, 2);
             }
 
             counter++;
             if(counter > points.getValue()) {
-                counter = 0L;
                 lastErrorMessage.setText("");
+                xAxis.autoRangingProperty().set(false);
+                xAxis.setUpperBound(counter);
+                counter = 0;
             }
 
          });
@@ -195,6 +198,7 @@ public class MainController implements TelegramListener {
     public void onTelegramErrorEvent(TelegramErrorEvent event) {
         Platform.runLater(() -> {
             lastErrorMessage.setText(event.toString());
+            System.err.println(event.toString());
         });
     }
 
