@@ -124,6 +124,9 @@ public class MainController implements TelegramListener {
         btnStop.setDisable(false);
         lastErrorMessage.setText("");
 
+        numberSeries1.getData().clear();
+        numberSeries2.getData().clear();
+        
         if(selectedPort.equals("Test")) {
             testSensor.setTelegramHandler(new TelegramHandler16Bit());
             testSensor.start();
@@ -175,11 +178,11 @@ public class MainController implements TelegramListener {
             numberSeries2.getData().add(new XYChart.Data<>(counter, average));
 
             if(numberSeries1.getData().size() > points.getValue()) {
-                numberSeries1.getData().remove(0, 2);
+                numberSeries1.getData().remove(0, 1);
             }
 
             if(numberSeries2.getData().size() > points.getValue()) {
-                numberSeries2.getData().remove(0, 2);
+                numberSeries2.getData().remove(0, 1);
             }
 
             counter++;

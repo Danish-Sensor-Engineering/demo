@@ -53,12 +53,12 @@
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="3">
                 <Label>Skip</Label>
-                <Spinner fx:id="skip" editable="true" initialValue="10" max="100" min="1" prefWidth="75.0" />
+                <Spinner fx:id="skip" editable="true" initialValue="15" max="100" min="1" prefWidth="75.0" />
             </HBox>
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="4">
                 <Label>Points</Label>
-                <Spinner fx:id="points" editable="true" initialValue="500" min="100" max="2000" prefWidth="100.0" />
+                <Spinner fx:id="points" editable="true" initialValue="1500" min="100" max="5000" prefWidth="100.0" />
             </HBox>
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="5">
