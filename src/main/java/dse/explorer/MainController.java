@@ -83,7 +83,7 @@ public class MainController implements TelegramListener {
 
         try {
 
-            numberSeries1.setName("Distance");
+            numberSeries1.setName("Measurement");
             observableList1.add(numberSeries1);
             dataChart.getData().addAll(observableList1);
 
@@ -178,11 +178,11 @@ public class MainController implements TelegramListener {
             numberSeries2.getData().add(new XYChart.Data<>(counter, average));
 
             if(numberSeries1.getData().size() > points.getValue()) {
-                numberSeries1.getData().remove(0, 1);
+                numberSeries1.getData().remove(0, 5);
             }
 
             if(numberSeries2.getData().size() > points.getValue()) {
-                numberSeries2.getData().remove(0, 1);
+                numberSeries2.getData().remove(0, 5);
             }
 
             counter++;

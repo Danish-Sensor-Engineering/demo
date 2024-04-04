@@ -19,10 +19,9 @@ public class Main extends javafx.application.Application {
     @Override
     public void start(Stage stage) throws IOException {
 
-
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("main.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        scene.setUserAgentStylesheet(new NordDark().getUserAgentStylesheet());
+        scene.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
         stage.getIcons().add(new Image(Objects.requireNonNull(Main.class.getResourceAsStream("/icon.png"))));
         stage.setTitle("ODS Explorer - Danish Sensor Engineering");
         stage.setScene(scene);
