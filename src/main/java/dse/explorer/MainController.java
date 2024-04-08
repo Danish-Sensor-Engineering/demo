@@ -23,6 +23,7 @@ public class MainController implements TelegramListener {
 
 
     @FXML private Spinner<Integer> skip;
+    @FXML private Spinner<Integer> avg;
     @FXML private Spinner<Integer> points;
 
     @FXML private ChoiceBox<String> choiceSensorType;
@@ -66,7 +67,7 @@ public class MainController implements TelegramListener {
         log.debug("initialize()");
         choiceSensorType.getItems().addAll("16bit", "18bit");
         choiceSensorBaudRate.getItems().addAll(38400, 115200);
-        choiceSensorSerialPort.getItems().add("Test");
+        choiceSensorSerialPort.getItems().add("Dummy");
         choiceSensorSerialPort.getItems().addAll(SerialSensor.getSerialPorts());
 
         skip.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
@@ -75,7 +76,13 @@ public class MainController implements TelegramListener {
             }
         });
 
-         points.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+        avg.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            if(!newValue.matches("\\d*")) {
+                skip.getEditor().setText(oldValue);
+            }
+        });
+
+        points.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             if(!newValue.matches("\\d*")) {
                 points.getEditor().setText(oldValue);
             }
@@ -124,10 +131,10 @@ public class MainController implements TelegramListener {
         btnStop.setDisable(false);
         lastErrorMessage.setText("");
 
-        numberSeries1.getData().clear();
-        numberSeries2.getData().clear();
-        
-        if(selectedPort.equals("Test")) {
+        serialSensor.interval = skip.getValue();
+        serialSensor.movingPoints = avg.getValue();
+
+        if(selectedPort.equals("Dummy")) {
             testSensor.setTelegramHandler(new TelegramHandler16Bit());
             testSensor.start();
             testSensor.addEventListener(this);
@@ -137,8 +144,6 @@ public class MainController implements TelegramListener {
                 case "18bit" -> serialSensor.setTelegramHandler(new TelegramHandler18Bit());
                 default -> log.warn("Unknown sensor type: " + selectedType);
             }
-
-            serialSensor.interval = skip.getValue();
             serialSensor.openPort(selectedPort, selectedBaud);
             serialSensor.addEventListener(this);
         }
@@ -155,6 +160,10 @@ public class MainController implements TelegramListener {
             serialSensor.removeEventListener(this);
             serialSensor.closePort();
         }
+
+        numberSeries1.getData().clear();
+        numberSeries2.getData().clear();
+        counter = 0;
 
         btnStart.setDisable(false);
         btnStop.setDisable(true);
