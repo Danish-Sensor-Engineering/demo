@@ -16,6 +16,8 @@ import javafx.scene.control.Spinner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 
 public class MainController implements TelegramListener {
 
@@ -103,17 +105,17 @@ public class MainController implements TelegramListener {
     }
 
 
-    @FXML private void onSelectModel(ActionEvent e) {
+    @FXML private void onSelectModel(ActionEvent ignoredE) {
         log.info(choiceSensorType.getSelectionModel().getSelectedItem());
         selectedType = choiceSensorType.getSelectionModel().getSelectedItem();
     }
 
-    @FXML private void onSelectPort(ActionEvent e) {
+    @FXML private void onSelectPort(ActionEvent ignoredE) {
         log.info(choiceSensorSerialPort.getSelectionModel().getSelectedItem());
         selectedPort = choiceSensorSerialPort.getSelectionModel().getSelectedItem();
     }
 
-    @FXML private void onSelectBaud(ActionEvent e) {
+    @FXML private void onSelectBaud(ActionEvent ignoredE) {
         log.info(String.valueOf(choiceSensorBaudRate.getSelectionModel().getSelectedItem()));
         selectedBaud = choiceSensorBaudRate.getSelectionModel().getSelectedItem();
     }
@@ -122,8 +124,9 @@ public class MainController implements TelegramListener {
     @FXML private void onButtonStart() {
         log.debug("onButtonStart()");
 
-        if( selectedPort != "Test" && (selectedPort == null || selectedType == null || selectedBaud == null) ) {
+        if(!Objects.equals(selectedPort, "Dummy") && (selectedPort == null || selectedType == null || selectedBaud == null) ) {
             log.warn("onButtonStart() - options missing");
+            lastErrorMessage.setText("Missing options");
             return;
         }
 
@@ -142,7 +145,7 @@ public class MainController implements TelegramListener {
             switch (selectedType) {
                 case "16bit" -> serialSensor.setTelegramHandler(new TelegramHandler16Bit());
                 case "18bit" -> serialSensor.setTelegramHandler(new TelegramHandler18Bit());
-                default -> log.warn("Unknown sensor type: " + selectedType);
+                default -> log.warn("Unknown sensor type: {}", selectedType);
             }
             serialSensor.openPort(selectedPort, selectedBaud);
             serialSensor.addEventListener(this);
@@ -153,7 +156,7 @@ public class MainController implements TelegramListener {
     @FXML private void onButtonStop() {
         log.debug("onButtonStop()");
 
-        if(selectedPort.equals("Test")) {
+        if(selectedPort.equals("Dummy")) {
             testSensor.removeEventListener(this);
             testSensor.stop();
         } else {
@@ -210,7 +213,7 @@ public class MainController implements TelegramListener {
     public void onTelegramErrorEvent(TelegramErrorEvent event) {
         Platform.runLater(() -> {
             lastErrorMessage.setText(event.toString());
-            System.err.println(event.toString());
+            System.err.println(event);
         });
     }
 
