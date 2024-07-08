@@ -69,7 +69,7 @@ public class MainController implements TelegramListener {
         log.debug("initialize()");
         choiceSensorType.getItems().addAll("16bit", "18bit");
         choiceSensorBaudRate.getItems().addAll(38400, 115200);
-        choiceSensorSerialPort.getItems().add("Dummy");
+        choiceSensorSerialPort.getItems().add("Demo");
         choiceSensorSerialPort.getItems().addAll(SerialSensor.getSerialPorts());
 
         skip.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
@@ -124,7 +124,7 @@ public class MainController implements TelegramListener {
     @FXML private void onButtonStart() {
         log.debug("onButtonStart()");
 
-        if(!Objects.equals(selectedPort, "Dummy") && (selectedPort == null || selectedType == null || selectedBaud == null) ) {
+        if(!Objects.equals(selectedPort, "Demo") && (selectedPort == null || selectedType == null || selectedBaud == null) ) {
             log.warn("onButtonStart() - options missing");
             lastErrorMessage.setText("Missing options");
             return;
@@ -137,7 +137,7 @@ public class MainController implements TelegramListener {
         serialSensor.interval = skip.getValue();
         serialSensor.movingPoints = avg.getValue();
 
-        if(selectedPort.equals("Dummy")) {
+        if(selectedPort.equals("Demo")) {
             testSensor.setTelegramHandler(new TelegramHandler16Bit());
             testSensor.start();
             testSensor.addEventListener(this);
@@ -156,7 +156,7 @@ public class MainController implements TelegramListener {
     @FXML private void onButtonStop() {
         log.debug("onButtonStop()");
 
-        if(selectedPort.equals("Dummy")) {
+        if(selectedPort.equals("Demo")) {
             testSensor.removeEventListener(this);
             testSensor.stop();
         } else {
