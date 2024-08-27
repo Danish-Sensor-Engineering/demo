@@ -12,16 +12,17 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Objects;
 
 public class Main extends javafx.application.Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-
+        Locale.setDefault(new Locale("C"));
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("main.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        scene.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+        scene.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
         stage.getIcons().add(new Image(Objects.requireNonNull(Main.class.getResourceAsStream("/icon.png"))));
         stage.setTitle("ODS Explorer - Danish Sensor Engineering");
         stage.setScene(scene);

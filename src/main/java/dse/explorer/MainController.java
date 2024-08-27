@@ -44,6 +44,7 @@ public class MainController implements TelegramListener {
     @FXML private Label lastErrorMessage;
 
     @FXML private Label lastDistanceResult;
+    @FXML private Label lastDistanceResultCenter;
 
     @FXML private Label averageDistance;
     @FXML private Label minimumDistance;
@@ -67,10 +68,24 @@ public class MainController implements TelegramListener {
 
     @FXML public void initialize() {
         log.debug("initialize()");
+
         choiceSensorType.getItems().addAll("16bit", "18bit");
+        choiceSensorType.getSelectionModel().select(0);
+
         choiceSensorBaudRate.getItems().addAll(38400, 115200);
+        choiceSensorBaudRate.getSelectionModel().select(0);
+
         choiceSensorSerialPort.getItems().add("Demo");
         choiceSensorSerialPort.getItems().addAll(SerialSensor.getSerialPorts());
+        choiceSensorSerialPort.getSelectionModel().select(0);
+
+        int idx = 0;
+        for(String port : choiceSensorSerialPort.getItems()) {
+            if(port.equals("ttyUSB0")) {
+                choiceSensorSerialPort.getSelectionModel().select(idx);
+            }
+            idx++;
+        }
 
         skip.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             if(!newValue.matches("\\d*")) {
@@ -102,6 +117,8 @@ public class MainController implements TelegramListener {
 
         } catch (Exception ignored) {
         }
+
+        onButtonStart();
     }
 
 
@@ -136,6 +153,7 @@ public class MainController implements TelegramListener {
 
         serialSensor.interval = skip.getValue();
         serialSensor.movingPoints = avg.getValue();
+
 
         if(selectedPort.equals("Demo")) {
             testSensor.setTelegramHandler(new TelegramHandler16Bit());
@@ -175,16 +193,17 @@ public class MainController implements TelegramListener {
 
      public void onTelegramResultEvent(TelegramResultEvent event) {
 
-        int measurement = event.getMeasurement();
-        int average = event.getAverage();
-        int minimum = event.getMinimum();
-        int maximum = event.getMaximum();
+        float measurement =  (float)  event.getMeasurement() / 100;
+        float average =  (float)  event.getAverage() / 100;
+        float minimum =  (float) event.getMinimum() / 100;
+        float maximum =  (float) event.getMaximum() / 100;
 
         Platform.runLater(() -> {
-            lastDistanceResult.setText(Integer.toString(measurement));
-            averageDistance.setText(String.valueOf(average));
-            minimumDistance.setText(String.valueOf(minimum));
-            maximumDistance.setText(String.valueOf(maximum));
+            lastDistanceResultCenter.setText(String.format("%.2f", measurement));
+            lastDistanceResult.setText(String.format("%.2f", measurement));
+            averageDistance.setText(String.format("%.2f", average));
+            minimumDistance.setText(String.format("%.2f", minimum));
+            maximumDistance.setText(String.format("%.2f", maximum));
 
             numberSeries1.getData().add(new XYChart.Data<>(counter, measurement));
             numberSeries2.getData().add(new XYChart.Data<>(counter, average));

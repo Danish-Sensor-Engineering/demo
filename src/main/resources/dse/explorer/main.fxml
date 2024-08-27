@@ -8,13 +8,17 @@
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Spinner?>
+<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dse.explorer.MainController">
+<BorderPane prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dse.explorer.MainController">
     <stylesheets>
         <URL value="@style.css" />
     </stylesheets>
@@ -38,32 +42,56 @@
             </rowConstraints>
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="0">
-                <Label>Port</Label>
+                <Label text="Port">
+                    <font>
+                        <Font name="System" size="16.0" />
+                    </font>
+                </Label>
                 <ChoiceBox fx:id="choiceSensorSerialPort" minWidth="100.0" onAction="#onSelectPort" value=" - Select - " />
             </HBox>
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="1">
-                <Label>Baud</Label>
+                <Label text="Baud">
+                    <font>
+                        <Font name="System" size="16.0" />
+                    </font>
+                </Label>
                 <ChoiceBox fx:id="choiceSensorBaudRate" minWidth="100.0" onAction="#onSelectBaud" value=" - Select - " />
             </HBox>
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="2">
-                <Label>Model</Label>
+                <Label text="Model">
+                    <font>
+                        <Font name="System" size="16.0" />
+                    </font>
+                </Label>
                 <ChoiceBox fx:id="choiceSensorType" minWidth="100.0" onAction="#onSelectModel" value=" - Select - " />
             </HBox>
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="3">
-                <Label>Skip</Label>
-                <Spinner fx:id="skip" editable="true" initialValue="10" max="100" min="1" prefWidth="75.0" />
+                <Label text="Skip">
+                    <font>
+                        <Font name="System" size="16.0" />
+                    </font>
+                </Label>
+                <Spinner fx:id="skip" editable="true" initialValue="15" max="100" min="1" prefWidth="75.0" />
             </HBox>
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="4">
-                <Label>Avg.</Label>
-                <Spinner fx:id="avg" editable="true" initialValue="50" max="500" min="15" prefWidth="75.0" />
+                <Label text="Avg">
+                    <font>
+                        <Font name="System" size="16.0" />
+                    </font>
+                </Label>
+                <Spinner fx:id="avg" editable="true" initialValue="25" max="500" min="15" prefWidth="75.0" />
             </HBox>
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="5">
-                <Label>History</Label>
+                <Label text="History">
+                    <font>
+                        <Font name="System" size="16.0" />
+                    </font>
+                </Label>
                 <Spinner fx:id="points" editable="true" initialValue="500" max="5000" min="100" prefWidth="100.0" />
             </HBox>
 
@@ -74,20 +102,31 @@
          <opaqueInsets>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </opaqueInsets>
+         <padding>
+            <Insets bottom="10.0" top="10.0" />
+         </padding>
 
         </GridPane>
     </top>
 
 
     <center>
-        <LineChart fx:id="dataChart" animated="false" createSymbols="false">
-            <xAxis>
-                <NumberAxis animated="false" forceZeroInRange="false" minorTickVisible="false" tickLabelsVisible="false" fx:id="xAxis" />
-            </xAxis>
-            <yAxis>
-                <NumberAxis fx:id="yAxis" animated="false" forceZeroInRange="false" minorTickVisible="false" />
-            </yAxis>
-        </LineChart>
+        <StackPane>
+            <LineChart fx:id="dataChart" animated="false" createSymbols="false">
+                <xAxis>
+                    <NumberAxis animated="false" forceZeroInRange="false" label="Time" minorTickVisible="false" tickLabelsVisible="false" fx:id="xAxis" />
+                </xAxis>
+                <yAxis>
+                    <NumberAxis fx:id="yAxis" animated="false" forceZeroInRange="false" label="Distance" minorTickVisible="false" lowerBound="50.0" upperBound="250.0" autoRanging="false"/> <!-- autoRanging="false" lowerBound="5.0" upperBound="50.0" -->
+                </yAxis>
+            </LineChart>
+            <Label fx:id="lastDistanceResultCenter" alignment="TOP_CENTER" graphicTextGap="0.0" text="0.0" translateX="500.0" translateY="-250.0" StackPane.alignment="CENTER">
+                <font>
+                    <Font name="System Bold" size="64.0" />
+                </font>
+            </Label>
+        </StackPane>
+
     </center>
 
 
@@ -107,27 +146,69 @@
             </rowConstraints>
 
             <HBox alignment="CENTER_LEFT" spacing="5.0">
-                <Label>Distance:</Label>
-                <Label fx:id="lastDistanceResult" minWidth="100.0" />
+                <Label text="Distance: ">
+                    <font>
+                        <Font name="System" size="24.0" />
+                    </font>
+                </Label>
+                <Label fx:id="lastDistanceResult" minWidth="100.0">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
+            <padding>
+               <Insets bottom="10.0" top="10.0" />
+            </padding>
             </HBox>
 
             <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1">
-                <Label>Average:</Label>
-                <Label fx:id="averageDistance" minWidth="100.0" />
+                <Label text="Average: ">
+                    <font>
+                        <Font name="System" size="24.0" />
+                    </font>
+                </Label>
+                <Label fx:id="averageDistance" minWidth="100.0">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
             </HBox>
 
             <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="2">
-                <Label>Minimum:</Label>
-                <Label fx:id="minimumDistance" minWidth="100.0" />
+                <Label text="Minimum: ">
+                    <font>
+                        <Font name="System" size="24.0" />
+                    </font>
+                </Label>
+                <Label fx:id="minimumDistance" minWidth="100.0">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
             </HBox>
 
             <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="3">
-                <Label>Maximum:</Label>
-                <Label fx:id="maximumDistance" minWidth="100.0" />
+                <Label text="Maximum: ">
+                    <font>
+                        <Font name="System" size="24.0" />
+                    </font>
+                </Label>
+                <Label fx:id="maximumDistance" minWidth="100.0">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
             </HBox>
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnSpan="4" GridPane.rowIndex="1">
-               <Label fx:id="lastErrorMessage" />
+                <Label fx:id="lastErrorMessage">
+                    <font>
+                        <Font name="System Bold Italic" size="20.0" />
+                    </font>
+                </Label>
+            <GridPane.margin>
+               <Insets bottom="10.0" top="10.0" />
+            </GridPane.margin>
              </HBox>
 
         </GridPane>
