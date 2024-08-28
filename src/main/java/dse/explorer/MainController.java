@@ -40,12 +40,11 @@ public class MainController implements TelegramListener {
 
     @FXML private LineChart<Number, Number> dataChart;
     @FXML private NumberAxis xAxis;
+    @FXML private NumberAxis yAxis;
 
     @FXML private Label lastErrorMessage;
 
     @FXML private Label lastDistanceResult;
-    @FXML private Label lastDistanceResultCenter;
-
     @FXML private Label averageDistance;
     @FXML private Label minimumDistance;
     @FXML private Label maximumDistance;
@@ -118,6 +117,10 @@ public class MainController implements TelegramListener {
         } catch (Exception ignored) {
         }
 
+        // Smaller stroke
+        numberSeries1.nodeProperty().get().setStyle("-fx-stroke-width: 2px;");
+
+        // TODO: For demo autostart
         onButtonStart();
     }
 
@@ -199,7 +202,10 @@ public class MainController implements TelegramListener {
         float maximum =  (float) event.getMaximum() / 100;
 
         Platform.runLater(() -> {
-            lastDistanceResultCenter.setText(String.format("%.2f", measurement));
+
+            yAxis.setLowerBound(Math.max(minimum - 50, 0));
+            yAxis.setUpperBound(maximum + 50);
+
             lastDistanceResult.setText(String.format("%.2f", measurement));
             averageDistance.setText(String.format("%.2f", average));
             minimumDistance.setText(String.format("%.2f", minimum));

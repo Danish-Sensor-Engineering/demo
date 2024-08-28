@@ -21,7 +21,8 @@
 }
 
 .chart-vertical-grid-lines {
-    -fx-stroke: #3278fa;
+    /*-fx-stroke: #3278fa;*/
+    -fx-stroke: transparent;
 }
 
 .chart-horizontal-grid-lines {
