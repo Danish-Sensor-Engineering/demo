@@ -63,7 +63,8 @@ public class MainController implements TelegramListener {
     private String selectedPort;
     private Integer selectedBaud;
     private int counter = 0;
-
+    private float minimumForRotation = 150f;
+    private float maximumForRotation = 50f;
 
     @FXML public void initialize() {
         log.debug("initialize()");
@@ -201,10 +202,14 @@ public class MainController implements TelegramListener {
         float minimum =  (float) event.getMinimum() / 100;
         float maximum =  (float) event.getMaximum() / 100;
 
+        if(minimum < minimumForRotation) minimumForRotation = minimum;
+        if(maximum > maximumForRotation) maximumForRotation = maximum;
+
+
         Platform.runLater(() -> {
 
-            yAxis.setLowerBound(Math.max(minimum - 50, 0));
-            yAxis.setUpperBound(maximum + 50);
+            yAxis.setLowerBound(Math.max(minimumForRotation - 25, 0));
+            yAxis.setUpperBound(maximumForRotation + 25);
 
             lastDistanceResult.setText(String.format("%.2f", measurement));
             averageDistance.setText(String.format("%.2f", average));
@@ -228,6 +233,8 @@ public class MainController implements TelegramListener {
                 xAxis.autoRangingProperty().set(false);
                 xAxis.setUpperBound(counter);
                 counter = 0;
+                maximumForRotation = maximum;
+                minimumForRotation = minimum;
             }
 
          });
