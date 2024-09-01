@@ -1,3 +1,20 @@
+@font-face {
+    src: url("../../fonts/Inter-VariableFont_opsz,wght.ttf");
+}
+
+@font-face {
+    src: url("../../fonts/Hack-Bold.ttf");
+}
+@font-face {
+    src: url("../../fonts/Hack-Regular.ttf");
+}
+
+.root {
+    -fx-font-family: "Inter", helvetica, arial, sans-serif;
+    -fx-font-weight: regular;
+    -fx-font-size: 16px;
+}
+
 .axis-label {
     -fx-text-fill: #4682b4;
 }
@@ -38,4 +55,26 @@
 .chart-series-line {
     -fx-stroke-width: 3px;
     -fx-effect: null;
+}
+
+.label-error {
+    -fx-font-family: "Hack", helvetica, arial, sans-serif;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.label-measurement {
+    -fx-font-family: "Hack", helvetica, arial, sans-serif;
+    -fx-font-size: 64px;
+    -fx-font-weight: bold;
+}
+
+.label-text {
+    -fx-font-size: 24px;
+}
+
+.label-value {
+    -fx-font-family: "Hack", helvetica, arial, sans-serif;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
 }

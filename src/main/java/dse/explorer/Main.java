@@ -1,7 +1,5 @@
 package dse.explorer;
 
-import atlantafx.base.theme.NordDark;
-import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
 import javafx.application.Platform;
 import javafx.event.EventHandler;

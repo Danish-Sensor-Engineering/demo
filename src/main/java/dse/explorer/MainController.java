@@ -16,16 +16,18 @@ import javafx.scene.control.Spinner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.concurrent.Flow;
 
 
-public class MainController implements TelegramListener {
+public class MainController implements Flow.Subscriber<Integer> {
 
     private final static Logger log = LoggerFactory.getLogger(MainController.class);
 
 
-    @FXML private Spinner<Integer> skip;
-    @FXML private Spinner<Integer> avg;
+    @FXML private Spinner<Integer> avgMeasurement;
+    @FXML private Spinner<Integer> avgDisplay;
     @FXML private Spinner<Integer> points;
 
     @FXML private ChoiceBox<String> choiceSensorType;
@@ -48,6 +50,7 @@ public class MainController implements TelegramListener {
     @FXML private Label averageDistance;
     @FXML private Label minimumDistance;
     @FXML private Label maximumDistance;
+    @FXML private Label frequencyLabel;
 
 
     private final ObservableList<XYChart.Series<Number, Number>> observableList1 = FXCollections.observableArrayList();
@@ -56,15 +59,29 @@ public class MainController implements TelegramListener {
     private final XYChart.Series<Number, Number> numberSeries2 = new XYChart.Series<>();
 
     // DSE Sensor Library
-    private final SerialSensor serialSensor = new SerialSensor();
-    private final TestSensor testSensor = new TestSensor();
+    private SerialSensor serialSensor;
+    private DemoSensor demoSensor;
+
+    // Java Flow API
+    private Flow.Subscription subscription;
 
     private String selectedType;
     private String selectedPort;
     private Integer selectedBaud;
-    private int counter = 0;
+    private int pointsCounter = 0;
     private float minimumForRotation = 150f;
     private float maximumForRotation = 50f;
+
+    private int frequencyCounter = 0;
+    private int averageCounter = 0;       // We want to have data for avg. before observing x data points
+    private int averageOver = 15;         // Size of moving data points to calculate average on
+    private int[] movingPointsArray  = new int[averageOver];
+    private int movingPointsAvg = 0;
+    private int movingPointsMin = 0;
+    private int movingPointsMax = 0;
+    private int frequency = 0;
+    private long lastNanoTime;
+
 
     @FXML public void initialize() {
         log.debug("initialize()");
@@ -87,15 +104,9 @@ public class MainController implements TelegramListener {
             idx++;
         }
 
-        skip.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+        avgDisplay.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             if(!newValue.matches("\\d*")) {
-                skip.getEditor().setText(oldValue);
-            }
-        });
-
-        avg.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            if(!newValue.matches("\\d*")) {
-                skip.getEditor().setText(oldValue);
+                avgMeasurement.getEditor().setText(oldValue);
             }
         });
 
@@ -144,6 +155,7 @@ public class MainController implements TelegramListener {
 
     @FXML private void onButtonStart() {
         log.debug("onButtonStart()");
+        reset();
 
         if(!Objects.equals(selectedPort, "Demo") && (selectedPort == null || selectedType == null || selectedBaud == null) ) {
             log.warn("onButtonStart() - options missing");
@@ -151,73 +163,107 @@ public class MainController implements TelegramListener {
             return;
         }
 
+        averageOver = avgDisplay.getValue();
+        movingPointsArray  = new int[averageOver];
+
         btnStart.setDisable(true);
         btnStop.setDisable(false);
         lastErrorMessage.setText("");
 
-        serialSensor.interval = skip.getValue();
-        serialSensor.movingPoints = avg.getValue();
-
-
         if(selectedPort.equals("Demo")) {
-            testSensor.setTelegramHandler(new TelegramHandler16Bit());
-            testSensor.start();
-            testSensor.addEventListener(this);
+            log.info("Demo Start");
+            demoSensor = new DemoSensor();
+            demoSensor.setTelegramHandler(new TelegramHandler16Bit());
+            demoSensor.setAverageOver(avgMeasurement.getValue());
+            demoSensor.start();
+            demoSensor.subscribe(this);
         } else {
+            serialSensor = new SerialSensor();
+            serialSensor.setAverageOver(avgMeasurement.getValue());
             switch (selectedType) {
                 case "16bit" -> serialSensor.setTelegramHandler(new TelegramHandler16Bit());
                 case "18bit" -> serialSensor.setTelegramHandler(new TelegramHandler18Bit());
                 default -> log.warn("Unknown sensor type: {}", selectedType);
             }
             serialSensor.openPort(selectedPort, selectedBaud);
-            serialSensor.addEventListener(this);
+            serialSensor.subscribe(this);
         }
+
+
     }
 
 
     @FXML private void onButtonStop() {
         log.debug("onButtonStop()");
+        subscription.cancel();
 
         if(selectedPort.equals("Demo")) {
-            testSensor.removeEventListener(this);
-            testSensor.stop();
+            demoSensor.stop();
+            demoSensor = null;
         } else {
-            serialSensor.removeEventListener(this);
-            serialSensor.closePort();
+            serialSensor.stop();
+            serialSensor = null;
         }
-
-        numberSeries1.getData().clear();
-        numberSeries2.getData().clear();
-        counter = 0;
 
         btnStart.setDisable(false);
         btnStop.setDisable(true);
     }
 
+    private void reset() {
+        numberSeries1.getData().clear();
+        numberSeries2.getData().clear();
 
-     public void onTelegramResultEvent(TelegramResultEvent event) {
+        pointsCounter = 0;
+        averageCounter = 0;
+        frequencyCounter = 0;
+    }
 
-        float measurement =  (float)  event.getMeasurement() / 100;
-        float average =  (float)  event.getAverage() / 100;
-        float minimum =  (float) event.getMinimum() / 100;
-        float maximum =  (float) event.getMaximum() / 100;
 
-        if(minimum < minimumForRotation) minimumForRotation = minimum;
-        if(maximum > maximumForRotation) maximumForRotation = maximum;
+    @Override
+    public void onSubscribe(Flow.Subscription subscription) {
+        log.info("onSubscribe()");
+        this.subscription = subscription;
+        subscription.request(1);
+    }
 
+    @Override
+    public void onNext(Integer measurement) {
+
+        frequencyCounter++;
+        long elapsedNanos = System. nanoTime() - lastNanoTime;
+        if(elapsedNanos > 1000000000) {
+            log.info("1 Second has gone: {}", frequencyCounter );
+            lastNanoTime = System.nanoTime();
+            frequency = frequencyCounter;
+            frequencyCounter = 0;
+        }
+
+        movingPointsArray[averageCounter++] = measurement;
+        if(averageCounter >= averageOver) {
+            movingPointsAvg = (int) Arrays.stream(movingPointsArray).average().orElse(measurement);
+            movingPointsMin = Arrays.stream(movingPointsArray).min().orElse(measurement);
+            movingPointsMax = Arrays.stream(movingPointsArray).max().orElse(measurement);
+            averageCounter = 0;
+        }
+
+        float convertedMeasurement = (float) measurement / 100;
+        float convertedAverage = (float) movingPointsAvg / 100;
+        float convertedMinimum = (float) movingPointsMin / 100;
+        float convertedMaximum = (float) movingPointsMax / 100;
+
+        if(convertedMeasurement < minimumForRotation) minimumForRotation = convertedMeasurement;
+        if(convertedMeasurement > maximumForRotation) maximumForRotation = convertedMeasurement;
 
         Platform.runLater(() -> {
 
-            yAxis.setLowerBound(Math.max(minimumForRotation - 25, 0));
-            yAxis.setUpperBound(maximumForRotation + 25);
+            lastDistanceResult.setText(String.format("%.2f", convertedMeasurement));
+            averageDistance.setText(String.format("%.2f", convertedAverage));
+            minimumDistance.setText(String.format("%.2f", convertedMinimum));
+            maximumDistance.setText(String.format("%.2f", convertedMaximum));
+            frequencyLabel.setText(String.format("%d Hz", frequency));
 
-            lastDistanceResult.setText(String.format("%.2f", measurement));
-            averageDistance.setText(String.format("%.2f", average));
-            minimumDistance.setText(String.format("%.2f", minimum));
-            maximumDistance.setText(String.format("%.2f", maximum));
-
-            numberSeries1.getData().add(new XYChart.Data<>(counter, measurement));
-            numberSeries2.getData().add(new XYChart.Data<>(counter, average));
+            numberSeries1.getData().add(new XYChart.Data<>(pointsCounter, convertedMeasurement));
+            numberSeries2.getData().add(new XYChart.Data<>(pointsCounter, convertedAverage));
 
             if(numberSeries1.getData().size() > points.getValue()) {
                 numberSeries1.getData().remove(0, 5);
@@ -227,26 +273,34 @@ public class MainController implements TelegramListener {
                 numberSeries2.getData().remove(0, 5);
             }
 
-            counter++;
-            if(counter > points.getValue()) {
+            yAxis.setLowerBound(Math.max(minimumForRotation - 25, 0));
+            yAxis.setUpperBound(maximumForRotation + 25);
+
+            pointsCounter++;
+            if(pointsCounter > points.getValue()) {
+                //log.warn("pointsCounter > points");
                 lastErrorMessage.setText("");
                 xAxis.autoRangingProperty().set(false);
-                xAxis.setUpperBound(counter);
-                counter = 0;
-                maximumForRotation = maximum;
-                minimumForRotation = minimum;
+                xAxis.setUpperBound(pointsCounter);
+                pointsCounter = 0;
             }
 
-         });
-
-     }
-
-
-    public void onTelegramErrorEvent(TelegramErrorEvent event) {
-        Platform.runLater(() -> {
-            lastErrorMessage.setText(event.toString());
-            System.err.println(event);
+            subscription.request(1);
         });
+
+    }
+
+    @Override
+    public void onError(Throwable throwable) {
+        Platform.runLater(() -> {
+            lastErrorMessage.setText(throwable.toString());
+            System.err.println(throwable.toString());
+        });
+    }
+
+    @Override
+    public void onComplete() {
+        System.out.println("Done");
     }
 
 }
