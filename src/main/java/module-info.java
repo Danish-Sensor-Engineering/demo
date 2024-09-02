@@ -1,6 +1,7 @@
 module dse.explorer {
     requires static java.annotation;
 
+    requires transitive javafx.graphics;
     requires javafx.controls;
     requires javafx.fxml;
     requires atlantafx.base;

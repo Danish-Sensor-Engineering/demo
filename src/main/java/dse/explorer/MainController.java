@@ -25,19 +25,15 @@ public class MainController implements Flow.Subscriber<Integer> {
 
     private final static Logger log = LoggerFactory.getLogger(MainController.class);
 
-
     @FXML private Spinner<Integer> avgMeasurement;
     @FXML private Spinner<Integer> avgDisplay;
     @FXML private Spinner<Integer> points;
 
     @FXML private ChoiceBox<String> choiceSensorType;
-
     @FXML private ChoiceBox<String> choiceSensorSerialPort;
-
     @FXML private ChoiceBox<Integer> choiceSensorBaudRate;
 
     @FXML private Button btnStart;
-
     @FXML private Button btnStop;
 
     @FXML private LineChart<Number, Number> dataChart;
@@ -45,13 +41,11 @@ public class MainController implements Flow.Subscriber<Integer> {
     @FXML private NumberAxis yAxis;
 
     @FXML private Label lastErrorMessage;
-
     @FXML private Label lastDistanceResult;
     @FXML private Label averageDistance;
     @FXML private Label minimumDistance;
     @FXML private Label maximumDistance;
     @FXML private Label frequencyLabel;
-
 
     private final ObservableList<XYChart.Series<Number, Number>> observableList1 = FXCollections.observableArrayList();
     private final ObservableList<XYChart.Series<Number, Number>> observableList2 = FXCollections.observableArrayList();
@@ -132,23 +126,25 @@ public class MainController implements Flow.Subscriber<Integer> {
         // Smaller stroke
         numberSeries1.nodeProperty().get().setStyle("-fx-stroke-width: 2px;");
 
-        // TODO: For demo autostart
+        // Autostart for demo, if possible
         onButtonStart();
     }
 
 
     @FXML private void onSelectModel(ActionEvent ignoredE) {
-        log.info(choiceSensorType.getSelectionModel().getSelectedItem());
+        //log.info(choiceSensorType.getSelectionModel().getSelectedItem());
         selectedType = choiceSensorType.getSelectionModel().getSelectedItem();
     }
 
+
     @FXML private void onSelectPort(ActionEvent ignoredE) {
-        log.info(choiceSensorSerialPort.getSelectionModel().getSelectedItem());
+        //log.info(choiceSensorSerialPort.getSelectionModel().getSelectedItem());
         selectedPort = choiceSensorSerialPort.getSelectionModel().getSelectedItem();
     }
 
+
     @FXML private void onSelectBaud(ActionEvent ignoredE) {
-        log.info(String.valueOf(choiceSensorBaudRate.getSelectionModel().getSelectedItem()));
+        //log.info(String.valueOf(choiceSensorBaudRate.getSelectionModel().getSelectedItem()));
         selectedBaud = choiceSensorBaudRate.getSelectionModel().getSelectedItem();
     }
 
@@ -171,7 +167,6 @@ public class MainController implements Flow.Subscriber<Integer> {
         lastErrorMessage.setText("");
 
         if(selectedPort.equals("Demo")) {
-            log.info("Demo Start");
             demoSensor = new DemoSensor();
             demoSensor.setTelegramHandler(new TelegramHandler16Bit());
             demoSensor.setAverageOver(avgMeasurement.getValue());
@@ -188,7 +183,6 @@ public class MainController implements Flow.Subscriber<Integer> {
             serialSensor.openPort(selectedPort, selectedBaud);
             serialSensor.subscribe(this);
         }
-
 
     }
 
@@ -209,6 +203,7 @@ public class MainController implements Flow.Subscriber<Integer> {
         btnStop.setDisable(true);
     }
 
+
     private void reset() {
         numberSeries1.getData().clear();
         numberSeries2.getData().clear();
@@ -221,18 +216,23 @@ public class MainController implements Flow.Subscriber<Integer> {
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
-        log.info("onSubscribe()");
         this.subscription = subscription;
         subscription.request(1);
     }
 
+
     @Override
     public void onNext(Integer measurement) {
+
+        if(measurement < 99) {
+            Platform.runLater(() -> lastErrorMessage.setText(TelegramError.getError(measurement)));
+            subscription.request(1);
+            return;
+        }
 
         frequencyCounter++;
         long elapsedNanos = System. nanoTime() - lastNanoTime;
         if(elapsedNanos > 1000000000) {
-            log.info("1 Second has gone: {}", frequencyCounter );
             lastNanoTime = System.nanoTime();
             frequency = frequencyCounter;
             frequencyCounter = 0;
@@ -278,7 +278,6 @@ public class MainController implements Flow.Subscriber<Integer> {
 
             pointsCounter++;
             if(pointsCounter > points.getValue()) {
-                //log.warn("pointsCounter > points");
                 lastErrorMessage.setText("");
                 xAxis.autoRangingProperty().set(false);
                 xAxis.setUpperBound(pointsCounter);
@@ -290,17 +289,17 @@ public class MainController implements Flow.Subscriber<Integer> {
 
     }
 
+
     @Override
     public void onError(Throwable throwable) {
-        Platform.runLater(() -> {
-            lastErrorMessage.setText(throwable.toString());
-            System.err.println(throwable.toString());
-        });
+        System.err.println(throwable.toString());
+        onButtonStop();
     }
+
 
     @Override
     public void onComplete() {
-        System.out.println("Done");
+        System.out.println("Done.");
     }
 
 }

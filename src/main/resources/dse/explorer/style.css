@@ -5,13 +5,14 @@
 @font-face {
     src: url("../../fonts/Hack-Bold.ttf");
 }
+
 @font-face {
     src: url("../../fonts/Hack-Regular.ttf");
 }
 
 .root {
     -fx-font-family: "Inter", helvetica, arial, sans-serif;
-    -fx-font-weight: regular;
+    -fx-font-weight: normal;
     -fx-font-size: 16px;
 }
 
@@ -23,7 +24,7 @@
     -fx-background-color:  transparent;
     -fx-padding: 0px;
     -fx-font-size: 16px;
-    -fx-font-weight: Bold;
+    -fx-font-weight: bold;
 }
 .chart-legend-item {
     -fx-padding: 15;
