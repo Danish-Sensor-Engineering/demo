@@ -95,7 +95,7 @@
                     <NumberAxis fx:id="yAxis" animated="false" autoRanging="false" forceZeroInRange="false" label="Distance" minorTickVisible="false" tickMarkVisible="false" /> <!-- autoRanging="false" lowerBound="5.0" upperBound="50.0" -->
                 </yAxis>
             </LineChart>
-            <Label fx:id="lastDistanceResult" alignment="TOP_CENTER" translateX="500.0" translateY="-250.0" StackPane.alignment="CENTER" styleClass="label-measurement" />
+            <Label fx:id="averageDistance" alignment="TOP_CENTER" translateX="500.0" translateY="-250.0" StackPane.alignment="CENTER" styleClass="label-measurement" />
         </StackPane>
 
     </center>
@@ -115,8 +115,8 @@
             </rowConstraints>
 
             <HBox alignment="CENTER_LEFT" spacing="5.0">
-                <Label text="Avg. " styleClass="label-text" />
-                <Label fx:id="averageDistance" minWidth="100.0" styleClass="label-value" />
+                <Label text="Cur. " styleClass="label-text" />
+                <Label fx:id="lastDistanceResult" minWidth="100.0" styleClass="label-value" />
             </HBox>
 
             <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1">

@@ -112,11 +112,11 @@ public class MainController implements Flow.Subscriber<Integer> {
 
         try {
 
-            numberSeries1.setName("Measurement");
+            numberSeries1.setName("Last Measurement in mm.");
             observableList1.add(numberSeries1);
             dataChart.getData().addAll(observableList1);
 
-            numberSeries2.setName("Average");
+            numberSeries2.setName("Moving Average in mm.");
             observableList2.add(numberSeries2);
             dataChart.getData().addAll(observableList2);
 
