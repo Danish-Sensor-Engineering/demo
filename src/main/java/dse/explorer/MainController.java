@@ -1,7 +1,6 @@
 package dse.explorer;
 
 import dse.libods.*;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -16,18 +15,16 @@ import javafx.scene.control.Spinner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.concurrent.Flow;
 
 
-public class MainController implements Flow.Subscriber<Integer> {
+public class MainController {
 
     private final static Logger log = LoggerFactory.getLogger(MainController.class);
 
-    @FXML private Spinner<Integer> avgMeasurement;
-    @FXML private Spinner<Integer> avgDisplay;
-    @FXML private Spinner<Integer> points;
+    @FXML private Spinner<Integer> spinnerSensorAvg;
+    @FXML private Spinner<Integer> spinnerAverage;
+    @FXML private Spinner<Integer> spinnerHistory;
 
     @FXML private ChoiceBox<String> choiceSensorType;
     @FXML private ChoiceBox<String> choiceSensorSerialPort;
@@ -40,40 +37,33 @@ public class MainController implements Flow.Subscriber<Integer> {
     @FXML private NumberAxis xAxis;
     @FXML private NumberAxis yAxis;
 
-    @FXML private Label lastErrorMessage;
-    @FXML private Label lastDistanceResult;
-    @FXML private Label averageDistance;
-    @FXML private Label minimumDistance;
-    @FXML private Label maximumDistance;
-    @FXML private Label frequencyLabel;
+    @FXML private Label labelMessage;
+    @FXML private Label labelMeasurement;
+    @FXML private Label labelAverage;
+    @FXML private Label labelMinimum;
+    @FXML private Label labelMaximum;
+    @FXML private Label labelFrequency;
 
     private final ObservableList<XYChart.Series<Number, Number>> observableList1 = FXCollections.observableArrayList();
     private final ObservableList<XYChart.Series<Number, Number>> observableList2 = FXCollections.observableArrayList();
     private final XYChart.Series<Number, Number> numberSeries1 = new XYChart.Series<>();
     private final XYChart.Series<Number, Number> numberSeries2 = new XYChart.Series<>();
 
+
     // DSE Sensor Library
     private SerialSensor serialSensor;
     private DemoSensor demoSensor;
 
-    // Java Flow API
-    private Flow.Subscription subscription;
+    // FIXME: Hardcodet conversion
+    private final MeasurementConverter measurementConverter = new MeasurementConverter(100);
 
     private String selectedType;
     private String selectedPort;
     private Integer selectedBaud;
-    private int pointsCounter = 0;
 
-    private int frequencyCounter = 0;
-    private int averageCounter = 0;       // We want to have data for avg. before observing x data points
-    private int averageOver = 15;         // Size of moving data points to calculate average on
-    private int[] movingPointsArray  = new int[averageOver];
-    private int movingPointsAvg = 0;
-    private int movingPointsMin = 0;
-    private int movingPointsMax = 0;
-    private int frequency = 0;
-    private long lastNanoTime;
-
+    private final StateModel stateModel = new StateModel();
+    private EventProcessTask eventProcessTask;
+    private Thread thread;
 
     @FXML public void initialize() {
         log.debug("initialize()");
@@ -96,35 +86,44 @@ public class MainController implements Flow.Subscriber<Integer> {
             idx++;
         }
 
-        avgDisplay.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+        spinnerAverage.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             if(!newValue.matches("\\d*")) {
-                avgMeasurement.getEditor().setText(oldValue);
+                spinnerSensorAvg.getEditor().setText(oldValue);
             }
         });
 
-        points.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+        spinnerHistory.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             if(!newValue.matches("\\d*")) {
-                points.getEditor().setText(oldValue);
+                spinnerHistory.getEditor().setText(oldValue);
             }
         });
 
         try {
-
-            numberSeries1.setName("Last Measurement in mm.");
-            observableList1.add(numberSeries1);
+            stateModel.numberSeries1.setName("Measurements in mm.");
+            observableList1.add(stateModel.numberSeries1);
             dataChart.getData().addAll(observableList1);
 
-            numberSeries2.setName("Moving Average in mm.");
-            observableList2.add(numberSeries2);
-            dataChart.getData().addAll(observableList2);
+
+            //measurementData.numberSeries2.setName("Moving Average in mm.");
+            //observableList2.add(measurementData.numberSeries2);
+            //dataChart.getData().addAll(observableList2);
 
         } catch (Exception ignored) {
         }
 
-        // Smaller stroke
-        numberSeries1.nodeProperty().get().setStyle("-fx-stroke-width: 2px;");
 
-        // Autostart for demo, if possible
+        eventProcessTask = new EventProcessTask(stateModel);
+        labelMessage.textProperty().bind(eventProcessTask.messageProperty());
+        labelMeasurement.textProperty().bindBidirectional(stateModel.measurementValue, measurementConverter);
+        labelAverage.textProperty().bindBidirectional(stateModel.averageValue, measurementConverter);
+        labelMinimum.textProperty().bindBidirectional(stateModel.minimumValue, measurementConverter);
+        labelMaximum.textProperty().bindBidirectional(stateModel.maximumValue, measurementConverter);
+        labelFrequency.textProperty().bind(stateModel.frequency.asString());
+
+        yAxis.lowerBoundProperty().bind(stateModel.lowerBound);
+        yAxis.upperBoundProperty().bind(stateModel.upperBound);
+
+
         onButtonStart();
     }
 
@@ -149,45 +148,44 @@ public class MainController implements Flow.Subscriber<Integer> {
 
     @FXML private void onButtonStart() {
         log.debug("onButtonStart()");
-        reset();
 
         if(!Objects.equals(selectedPort, "Demo") && (selectedPort == null || selectedType == null || selectedBaud == null) ) {
             log.warn("onButtonStart() - options missing");
-            lastErrorMessage.setText("Missing options");
+            labelMessage.setText("Missing options");
             return;
         }
 
-        averageOver = avgDisplay.getValue();
-        movingPointsArray  = new int[averageOver];
-
+        reset();
         btnStart.setDisable(true);
         btnStop.setDisable(false);
-        lastErrorMessage.setText("");
+
 
         if(selectedPort.equals("Demo")) {
             demoSensor = new DemoSensor();
             demoSensor.setTelegramHandler(new TelegramHandler16Bit());
-            demoSensor.setAverageOver(avgMeasurement.getValue());
+            demoSensor.setAverageOver(spinnerSensorAvg.getValue());
+            demoSensor.subscribe(eventProcessTask);
             demoSensor.start();
-            demoSensor.subscribe(this);
         } else {
             serialSensor = new SerialSensor();
-            serialSensor.setAverageOver(avgMeasurement.getValue());
+            serialSensor.setAverageOver(spinnerSensorAvg.getValue());
             switch (selectedType) {
                 case "16bit" -> serialSensor.setTelegramHandler(new TelegramHandler16Bit());
                 case "18bit" -> serialSensor.setTelegramHandler(new TelegramHandler18Bit());
                 default -> log.warn("Unknown sensor type: {}", selectedType);
             }
             serialSensor.openPort(selectedPort, selectedBaud);
-            serialSensor.subscribe(this);
+            serialSensor.subscribe(eventProcessTask);
+            serialSensor.start();
         }
 
+        thread = new Thread(eventProcessTask);
+        thread.start();
     }
 
 
-    @FXML private void onButtonStop() {
+    @FXML private void onButtonStop() throws Exception {
         log.debug("onButtonStop()");
-        subscription.cancel();
 
         if(selectedPort.equals("Demo")) {
             demoSensor.stop();
@@ -197,28 +195,28 @@ public class MainController implements Flow.Subscriber<Integer> {
             serialSensor = null;
         }
 
+        thread.join();
         btnStart.setDisable(false);
         btnStop.setDisable(true);
     }
 
 
     private void reset() {
-        numberSeries1.getData().clear();
-        numberSeries2.getData().clear();
 
-        pointsCounter = 0;
-        averageCounter = 0;
-        frequencyCounter = 0;
+        // Size of moving data points to calculate average on
+        int averageOver = spinnerAverage.getValue();
+        stateModel.setAverageOver(averageOver);
+        stateModel.setElements(spinnerHistory.getValue());
+
+        stateModel.setConversion(100);
+        //stateModel.numberSeries1.getData().clear();
+
+        xAxis.autoRangingProperty().set(false);
+        xAxis.setUpperBound(spinnerHistory.getValue());
     }
 
 
-    @Override
-    public void onSubscribe(Flow.Subscription subscription) {
-        this.subscription = subscription;
-        subscription.request(1);
-    }
-
-
+    /*
     @Override
     public void onNext(Integer measurement) {
 
@@ -269,22 +267,10 @@ public class MainController implements Flow.Subscriber<Integer> {
                 pointsCounter = 0;
             }
 
-            subscription.request(1);
+            //subscription.request(1);
         });
 
-    }
+    }*/
 
-
-    @Override
-    public void onError(Throwable throwable) {
-        System.err.println(throwable.toString());
-        onButtonStop();
-    }
-
-
-    @Override
-    public void onComplete() {
-        System.out.println("Done.");
-    }
 
 }

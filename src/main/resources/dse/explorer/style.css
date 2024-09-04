@@ -54,7 +54,8 @@
 }
 
 .chart-series-line {
-    -fx-stroke-width: 3px;
+    -fx-stroke: red;
+    -fx-stroke-width: 2px;
     -fx-effect: null;
 }
 
