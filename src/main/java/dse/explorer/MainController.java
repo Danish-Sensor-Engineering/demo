@@ -63,8 +63,6 @@ public class MainController implements Flow.Subscriber<Integer> {
     private String selectedPort;
     private Integer selectedBaud;
     private int pointsCounter = 0;
-    private float minimumForRotation = 150f;
-    private float maximumForRotation = 50f;
 
     private int frequencyCounter = 0;
     private int averageCounter = 0;       // We want to have data for avg. before observing x data points
@@ -251,11 +249,7 @@ public class MainController implements Flow.Subscriber<Integer> {
         float convertedMinimum = (float) movingPointsMin / 100;
         float convertedMaximum = (float) movingPointsMax / 100;
 
-        if(convertedMeasurement < minimumForRotation) minimumForRotation = convertedMeasurement;
-        if(convertedMeasurement > maximumForRotation) maximumForRotation = convertedMeasurement;
-
         Platform.runLater(() -> {
-
             lastDistanceResult.setText(String.format("%.2f", convertedMeasurement));
             averageDistance.setText(String.format("%.2f", convertedAverage));
             minimumDistance.setText(String.format("%.2f", convertedMinimum));
@@ -264,17 +258,8 @@ public class MainController implements Flow.Subscriber<Integer> {
 
             numberSeries1.getData().add(new XYChart.Data<>(pointsCounter, convertedMeasurement));
             numberSeries2.getData().add(new XYChart.Data<>(pointsCounter, convertedAverage));
-
-            if(numberSeries1.getData().size() > points.getValue()) {
-                numberSeries1.getData().remove(0, 5);
-            }
-
-            if(numberSeries2.getData().size() > points.getValue()) {
-                numberSeries2.getData().remove(0, 5);
-            }
-
-            yAxis.setLowerBound(Math.max(minimumForRotation - 25, 0));
-            yAxis.setUpperBound(maximumForRotation + 25);
+            if(numberSeries1.getData().size() > points.getValue()) { numberSeries1.getData().remove(0, 5); }
+            if(numberSeries2.getData().size() > points.getValue()) { numberSeries2.getData().remove(0, 5); }
 
             pointsCounter++;
             if(pointsCounter > points.getValue()) {

@@ -92,7 +92,7 @@
                     <NumberAxis animated="false" forceZeroInRange="false" label="Time" minorTickVisible="false" tickLabelsVisible="false" tickMarkVisible="false" fx:id="xAxis" />
                 </xAxis>
                 <yAxis>
-                    <NumberAxis fx:id="yAxis" animated="false" autoRanging="false" forceZeroInRange="false" label="Distance" minorTickVisible="false" tickMarkVisible="false" /> <!-- autoRanging="false" lowerBound="5.0" upperBound="50.0" -->
+                    <NumberAxis fx:id="yAxis" animated="false" autoRanging="true" forceZeroInRange="false" label="Distance" minorTickVisible="false" tickMarkVisible="false" /> <!-- autoRanging="false" lowerBound="5.0" upperBound="50.0" -->
                 </yAxis>
             </LineChart>
             <Label fx:id="averageDistance" alignment="TOP_CENTER" translateX="500.0" translateY="-250.0" StackPane.alignment="CENTER" styleClass="label-measurement" />
