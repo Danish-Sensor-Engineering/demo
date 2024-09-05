@@ -1,6 +1,7 @@
 package dse.explorer;
 
 import dse.libods.TelegramError;
+import io.fair_acc.chartfx.utils.FXUtils;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 

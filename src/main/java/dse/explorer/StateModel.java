@@ -2,6 +2,8 @@ package dse.explorer;
 
 import java.util.Arrays;
 
+import io.fair_acc.chartfx.utils.FXUtils;
+import io.fair_acc.dataset.spi.DoubleDataSet;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -28,8 +30,9 @@ public class StateModel {
     protected IntegerProperty upperBound = new SimpleIntegerProperty();
 
     // https://stackoverflow.com/a/49557072
-    protected final XYChart.Series<Integer, Number> numberSeries1 = new XYChart.Series<>();
+    protected final XYChart.Series<Number, Number> numberSeries1 = new XYChart.Series<>();
     //protected final XYChart.Series<Number, Number> numberSeries2 = new XYChart.Series<>();
+    protected DoubleDataSet dataSet = new DoubleDataSet("data set #1", elements);
 
     public void setConversion(int conversion) {
         this.conversion = conversion;
@@ -43,9 +46,12 @@ public class StateModel {
 
     public void setElements(int elements) {
         this.elements = elements;
+        dataSet.resize(elements);
+
+        /*
         for(int i=0; i <= elements; i++) {
             numberSeries1.getData().add(new XYChart.Data<>(i, null));
-        }
+        }*/
     }
 
     public void setFrequency(int freq) {
@@ -84,14 +90,24 @@ public class StateModel {
         });
 
         //numberSeries1.getData().add(new XYChart.Data<>(elementCounter, avg / conversion));
+
+        dataSet.add(elementCounter, measurementConverted);
+        System.out.println(dataSet.getDataCount());
+        //numberSeries1.getData().set(elementCounter, new XYChart.Data<>(elementCounter, measurementConverted));
         //if(numberSeries1.getData().size() > elements) { numberSeries1.getData().remove(0, 5); }
+        //if(numberSeries1.getData().size() > elements) { numberSeries1.getData().remove(0, 5); }
+        //numberSeries1.getData().add(new XYChart.Data<>(elementCounter, measurementConverted));
 
         if(elementCounter++ >= elements) {
+            dataSet.trim();
             elementCounter = 0;
         }
 
-        numberSeries1.getData().get(elementCounter).setXValue(elementCounter);
-        numberSeries1.getData().get(elementCounter).setYValue(measurementConverted);
+
+        //dataSet.add(elementCounter, elementCounter, measurementConverted);
+        //numberSeries1.getData().set(elementCounter, new DoubleDataSet(elementCounter,measurementConverted));
+        //numberSeries1.getData().get(elementCounter).setXValue(elementCounter);
+        //numberSeries1.getData().get(elementCounter).setYValue(measurementConverted);
     }
 
 }

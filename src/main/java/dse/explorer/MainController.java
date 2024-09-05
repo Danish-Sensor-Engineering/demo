@@ -1,27 +1,36 @@
 package dse.explorer;
 
 import dse.libods.*;
+import io.fair_acc.chartfx.axes.spi.DefaultNumericAxis;
+import io.fair_acc.chartfx.ui.ObservableDeque;
+import io.fair_acc.dataset.spi.DoubleDataSet;
+import javafx.beans.InvalidationListener;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableListValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableArray;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.CacheHint;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
+import javafx.scene.layout.StackPane;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
+import java.util.*;
 
 
 public class MainController {
 
     private final static Logger log = LoggerFactory.getLogger(MainController.class);
+
 
     @FXML private Spinner<Integer> spinnerSensorAvg;
     @FXML private Spinner<Integer> spinnerAverage;
@@ -34,9 +43,7 @@ public class MainController {
     @FXML private Button btnStart;
     @FXML private Button btnStop;
 
-    @FXML private LineChart<Integer, Number> lineChart;
-    @FXML private NumberAxis xAxis;
-    @FXML private NumberAxis yAxis;
+    @FXML public StackPane stackPane;
 
     @FXML private Label labelMessage;
     @FXML private Label labelMeasurement;
@@ -45,10 +52,11 @@ public class MainController {
     @FXML private Label labelMaximum;
     @FXML private Label labelFrequency;
 
-    private final ObservableList<XYChart.Series<Integer, Number>> observableList1 = FXCollections.observableArrayList();
-    //private final ObservableList<XYChart.Series<Number, Number>> observableList2 = FXCollections.observableArrayList();
-    //private final XYChart.Series<Number, Number> numberSeries1 = new XYChart.Series<>();
-    //private final XYChart.Series<Number, Number> numberSeries2 = new XYChart.Series<>();
+
+    private DefaultNumericAxis xAxis = new DefaultNumericAxis();
+    private DefaultNumericAxis yAxis = new DefaultNumericAxis();
+    private io.fair_acc.chartfx.XYChart chart = new io.fair_acc.chartfx.XYChart(xAxis, yAxis);;
+    private ObservableList<DoubleDataSet> observableList = FXCollections.observableArrayList();
 
 
     // DSE Sensor Library
@@ -99,24 +107,17 @@ public class MainController {
             }
         });
 
-        try {
-            stateModel.numberSeries1.setName("Measurements in mm.");
-            observableList1.add(stateModel.numberSeries1);
-            lineChart.getData().addAll(observableList1);
-            //lineChart.getData().addAll(stateModel.numberSeries1);
-            lineChart.setCache(false);
-            lineChart.setAnimated(false);
-            lineChart.setCacheHint(CacheHint.SPEED);
-            lineChart.setHorizontalGridLinesVisible(false);
-            lineChart.setVerticalGridLinesVisible(false);
-            
-            //measurementData.numberSeries2.setName("Moving Average in mm.");
-            //observableList2.add(measurementData.numberSeries2);
-            //dataChart.getData().addAll(observableList2);
+        xAxis.setName("Time");
+        xAxis.setMinorTickCount(0);
+        yAxis.setName("Distance");
+        yAxis.setAutoRangePadding(5.0);
+        yAxis.setForceZeroInRange(false);
 
-        } catch (Exception ignored) {
-        }
-
+        observableList.add(stateModel.dataSet);
+        chart.getDatasets().addAll(observableList);
+        chart.autosize();
+        
+        stackPane.getChildren().add(chart);
 
         eventProcessTask = new EventProcessTask(stateModel);
         labelMessage.textProperty().bind(eventProcessTask.messageProperty());
@@ -126,8 +127,9 @@ public class MainController {
         labelMaximum.textProperty().bindBidirectional(stateModel.maximumValue, measurementConverter);
         labelFrequency.textProperty().bind(stateModel.frequency.asString());
 
-        yAxis.lowerBoundProperty().bind(stateModel.lowerBound);
-        yAxis.upperBoundProperty().bind(stateModel.upperBound);
+
+        //yAxis.lowerBoundProperty().bind(stateModel.lowerBound);
+        //yAxis.upperBoundProperty().bind(stateModel.upperBound);
 
         onButtonStart();
     }
@@ -216,8 +218,11 @@ public class MainController {
         stateModel.setConversion(100);
         //stateModel.numberSeries1.getData().clear();
 
-        xAxis.autoRangingProperty().set(false);
-        xAxis.setUpperBound(spinnerHistory.getValue());
+
+
+
+        //xAxis.autoRangingProperty().set(false);
+        //xAxis.setUpperBound(spinnerHistory.getValue());
     }
 
 }
