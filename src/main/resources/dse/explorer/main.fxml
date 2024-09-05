@@ -67,7 +67,7 @@
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="5">
                 <Label text="Elements" />
-                <Spinner fx:id="spinnerHistory" editable="true" initialValue="5000" max="5000" min="500" prefWidth="100.0" />
+                <Spinner fx:id="spinnerHistory" editable="true" initialValue="3000" max="15000" min="500" prefWidth="100.0" />
             </HBox>
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="6">

@@ -16,6 +16,7 @@
     -fx-font-size: 16px;
 }
 
+/*
 .axis-label {
     -fx-text-fill: #4682b4;
 }
@@ -39,7 +40,6 @@
 }
 
 .chart-vertical-grid-lines {
-    /*-fx-stroke: #3278fa;*/
     -fx-stroke: transparent;
 }
 
@@ -58,7 +58,7 @@
     -fx-stroke-width: 2px;
     -fx-effect: null;
 }
-
+*/
 .label-error {
     -fx-font-family: "Hack", helvetica, arial, sans-serif;
     -fx-font-size: 20px;

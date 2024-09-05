@@ -2,25 +2,16 @@ package dse.explorer;
 
 import dse.libods.*;
 import io.fair_acc.chartfx.axes.spi.DefaultNumericAxis;
-import io.fair_acc.chartfx.ui.ObservableDeque;
 import io.fair_acc.dataset.spi.DoubleDataSet;
-import javafx.beans.InvalidationListener;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableListValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableArray;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.layout.StackPane;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +46,7 @@ public class MainController {
 
     private DefaultNumericAxis xAxis = new DefaultNumericAxis();
     private DefaultNumericAxis yAxis = new DefaultNumericAxis();
-    private io.fair_acc.chartfx.XYChart chart = new io.fair_acc.chartfx.XYChart(xAxis, yAxis);;
+    private io.fair_acc.chartfx.XYChart chart;
     private ObservableList<DoubleDataSet> observableList = FXCollections.observableArrayList();
 
 
@@ -73,6 +64,7 @@ public class MainController {
     private final StateModel stateModel = new StateModel();
     private EventProcessTask eventProcessTask;
     private Thread thread;
+
 
     @FXML public void initialize() {
         log.debug("initialize()");
@@ -107,16 +99,32 @@ public class MainController {
             }
         });
 
-        xAxis.setName("Time");
-        xAxis.setMinorTickCount(0);
+
+        xAxis.setName("Measurements");
+        xAxis.setAnimated(true);
+        xAxis.setForceZeroInRange(false);
+        xAxis.setAutoRanging(true);
+        xAxis.setAutoRanging(true);
+        xAxis.setAutoGrowRanging(true);
+        xAxis.set(0,5000);
+
         yAxis.setName("Distance");
-        yAxis.setAutoRangePadding(5.0);
+        yAxis.setUnitScaling(100);  // Factor for conversion
+        yAxis.setAnimated(true);
+        yAxis.setAutoRanging(true);
+        yAxis.setAutoGrowRanging(true);
+        yAxis.setAutoRangePadding(0.25);
         yAxis.setForceZeroInRange(false);
+        yAxis.set(50000, 300000);
+
+        //yAxis.minProperty().bind(stateModel.lowerBound);
+        //yAxis.maxProperty().bind(stateModel.upperBound);
 
         observableList.add(stateModel.dataSet);
+        chart = new io.fair_acc.chartfx.XYChart(xAxis, yAxis);
         chart.getDatasets().addAll(observableList);
-        chart.autosize();
-        
+        chart.setLegendVisible(false);
+
         stackPane.getChildren().add(chart);
 
         eventProcessTask = new EventProcessTask(stateModel);
@@ -126,7 +134,6 @@ public class MainController {
         labelMinimum.textProperty().bindBidirectional(stateModel.minimumValue, measurementConverter);
         labelMaximum.textProperty().bindBidirectional(stateModel.maximumValue, measurementConverter);
         labelFrequency.textProperty().bind(stateModel.frequency.asString());
-
 
         //yAxis.lowerBoundProperty().bind(stateModel.lowerBound);
         //yAxis.upperBoundProperty().bind(stateModel.upperBound);
@@ -210,19 +217,15 @@ public class MainController {
 
     private void reset() {
 
+        //chart.getXAxis().computePreferredTickUnit(spinnerHistory.getValue());
+        chart.getXAxis().set(0, spinnerHistory.getValue());
+        //chart.getYAxis().set(50000, 300000);
+        chart.getGridRenderer().requestLayout();
+
         // Size of moving data points to calculate average on
         int averageOver = spinnerAverage.getValue();
         stateModel.setAverageOver(averageOver);
         stateModel.setElements(spinnerHistory.getValue());
-
-        stateModel.setConversion(100);
-        //stateModel.numberSeries1.getData().clear();
-
-
-
-
-        //xAxis.autoRangingProperty().set(false);
-        //xAxis.setUpperBound(spinnerHistory.getValue());
     }
 
 }
