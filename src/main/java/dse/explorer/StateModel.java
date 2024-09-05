@@ -59,26 +59,28 @@ public class StateModel {
         double measurementConverted = (double) measurement / conversion;
 
         Platform.runLater(() -> {
+
             movingAverageArray[movingAverageCounter++] = measurement;
             if(movingAverageCounter >= averageOver) {
-                avg = Arrays.stream(movingAverageArray).average().orElse(measurement);
                 double avgConverted = avg / conversion;
+                avg = Arrays.stream(movingAverageArray).average().orElse(measurement);
                 averageValue.setValue(avg);
                 minimumValue.setValue(Arrays.stream(movingAverageArray).min().orElse(measurement));
                 maximumValue.setValue(Arrays.stream(movingAverageArray).max().orElse(measurement));
                 movingAverageCounter = 0;
 
-                if(lowerBound.get() < avgConverted - MARGINS) {
+                this.measurementValue.setValue(avg);
+
+                if(lowerBound.get() < avgConverted - (MARGINS + 10)) {
                     lowerBound.setValue(avgConverted - MARGINS);
                     System.out.println("Lowerbound adjust");
                 }
-                if(upperBound.get() < avgConverted + MARGINS) {
+                if(upperBound.get() < avgConverted + (MARGINS - 10)) {
                     upperBound.setValue(avgConverted + MARGINS);
                     System.out.println("Upperbound adjust");
                 }
-
-                this.measurementValue.setValue(avg);
             }
+
         });
 
         //numberSeries1.getData().add(new XYChart.Data<>(elementCounter, avg / conversion));
