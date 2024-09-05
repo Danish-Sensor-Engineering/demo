@@ -1,6 +1,7 @@
 package dse.explorer;
 
 import dse.libods.TelegramError;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 
 import java.util.concurrent.Flow;

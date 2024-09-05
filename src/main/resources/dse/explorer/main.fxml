@@ -67,7 +67,7 @@
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="5">
                 <Label text="Elements" />
-                <Spinner fx:id="spinnerHistory" editable="true" initialValue="1000" max="5000" min="100" prefWidth="100.0" />
+                <Spinner fx:id="spinnerHistory" editable="true" initialValue="1500" max="5000" min="500" prefWidth="100.0" />
             </HBox>
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="6">
@@ -87,12 +87,12 @@
 
     <center>
         <StackPane>
-            <LineChart fx:id="dataChart" animated="false" createSymbols="false">
+            <LineChart fx:id="lineChart" animated="false" createSymbols="false">
                 <xAxis>
                     <NumberAxis animated="false" forceZeroInRange="false" label="Time" minorTickVisible="false" tickLabelsVisible="false" tickMarkVisible="false" fx:id="xAxis" />
                 </xAxis>
                 <yAxis>
-                    <NumberAxis fx:id="yAxis" animated="false" forceZeroInRange="false" autoRanging="false" label="Distance" minorTickVisible="false" tickMarkVisible="false" centerShape="false" lowerBound="50" upperBound="300"/> <!-- autoRanging="false" lowerBound="5.0" upperBound="50.0" -->
+                    <NumberAxis fx:id="yAxis" animated="false" forceZeroInRange="false" autoRanging="false" label="Distance" minorTickVisible="false" tickMarkVisible="false" centerShape="false" lowerBound="50" upperBound="150"/> <!-- autoRanging="false" lowerBound="5.0" upperBound="50.0" -->
                 </yAxis>
             </LineChart>
             <Label fx:id="labelAverage" alignment="TOP_CENTER" translateX="500.0" translateY="-250.0" StackPane.alignment="CENTER" styleClass="label-measurement" />

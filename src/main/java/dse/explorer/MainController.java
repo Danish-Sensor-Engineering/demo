@@ -5,6 +5,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.CacheHint;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -33,7 +34,7 @@ public class MainController {
     @FXML private Button btnStart;
     @FXML private Button btnStop;
 
-    @FXML private LineChart<Number, Number> dataChart;
+    @FXML private LineChart<Integer, Number> lineChart;
     @FXML private NumberAxis xAxis;
     @FXML private NumberAxis yAxis;
 
@@ -44,10 +45,10 @@ public class MainController {
     @FXML private Label labelMaximum;
     @FXML private Label labelFrequency;
 
-    private final ObservableList<XYChart.Series<Number, Number>> observableList1 = FXCollections.observableArrayList();
-    private final ObservableList<XYChart.Series<Number, Number>> observableList2 = FXCollections.observableArrayList();
-    private final XYChart.Series<Number, Number> numberSeries1 = new XYChart.Series<>();
-    private final XYChart.Series<Number, Number> numberSeries2 = new XYChart.Series<>();
+    private final ObservableList<XYChart.Series<Integer, Number>> observableList1 = FXCollections.observableArrayList();
+    //private final ObservableList<XYChart.Series<Number, Number>> observableList2 = FXCollections.observableArrayList();
+    //private final XYChart.Series<Number, Number> numberSeries1 = new XYChart.Series<>();
+    //private final XYChart.Series<Number, Number> numberSeries2 = new XYChart.Series<>();
 
 
     // DSE Sensor Library
@@ -101,9 +102,14 @@ public class MainController {
         try {
             stateModel.numberSeries1.setName("Measurements in mm.");
             observableList1.add(stateModel.numberSeries1);
-            dataChart.getData().addAll(observableList1);
-
-
+            lineChart.getData().addAll(observableList1);
+            //lineChart.getData().addAll(stateModel.numberSeries1);
+            lineChart.setCache(false);
+            lineChart.setAnimated(false);
+            lineChart.setCacheHint(CacheHint.SPEED);
+            lineChart.setHorizontalGridLinesVisible(false);
+            lineChart.setVerticalGridLinesVisible(false);
+            
             //measurementData.numberSeries2.setName("Moving Average in mm.");
             //observableList2.add(measurementData.numberSeries2);
             //dataChart.getData().addAll(observableList2);
@@ -122,7 +128,6 @@ public class MainController {
 
         yAxis.lowerBoundProperty().bind(stateModel.lowerBound);
         yAxis.upperBoundProperty().bind(stateModel.upperBound);
-
 
         onButtonStart();
     }
@@ -214,63 +219,5 @@ public class MainController {
         xAxis.autoRangingProperty().set(false);
         xAxis.setUpperBound(spinnerHistory.getValue());
     }
-
-
-    /*
-    @Override
-    public void onNext(Integer measurement) {
-
-        if(measurement < 99) {
-            Platform.runLater(() -> lastErrorMessage.setText(TelegramError.getError(measurement)));
-            subscription.request(1);
-            return;
-        }
-
-        frequencyCounter++;
-        long elapsedNanos = System. nanoTime() - lastNanoTime;
-        if(elapsedNanos > 1000000000) {
-            lastNanoTime = System.nanoTime();
-            frequency = frequencyCounter;
-            frequencyCounter = 0;
-        }
-
-        movingPointsArray[averageCounter++] = measurement;
-        if(averageCounter >= averageOver) {
-            movingPointsAvg = (int) Arrays.stream(movingPointsArray).average().orElse(measurement);
-            movingPointsMin = Arrays.stream(movingPointsArray).min().orElse(measurement);
-            movingPointsMax = Arrays.stream(movingPointsArray).max().orElse(measurement);
-            averageCounter = 0;
-        }
-
-        float convertedMeasurement = (float) measurement / 100;
-        float convertedAverage = (float) movingPointsAvg / 100;
-        float convertedMinimum = (float) movingPointsMin / 100;
-        float convertedMaximum = (float) movingPointsMax / 100;
-
-        Platform.runLater(() -> {
-            lastDistanceResult.setText(String.format("%.2f", convertedMeasurement));
-            averageDistance.setText(String.format("%.2f", convertedAverage));
-            minimumDistance.setText(String.format("%.2f", convertedMinimum));
-            maximumDistance.setText(String.format("%.2f", convertedMaximum));
-            frequencyLabel.setText(String.format("%d Hz", frequency));
-
-            numberSeries1.getData().add(new XYChart.Data<>(pointsCounter, convertedMeasurement));
-            numberSeries2.getData().add(new XYChart.Data<>(pointsCounter, convertedAverage));
-            if(numberSeries1.getData().size() > points.getValue()) { numberSeries1.getData().remove(0, 5); }
-            if(numberSeries2.getData().size() > points.getValue()) { numberSeries2.getData().remove(0, 5); }
-
-            pointsCounter++;
-            if(pointsCounter > points.getValue()) {
-                lastErrorMessage.setText("");
-                xAxis.autoRangingProperty().set(false);
-                xAxis.setUpperBound(pointsCounter);
-                pointsCounter = 0;
-            }
-
-            //subscription.request(1);
-        });
-
-    }*/
-
 
 }
