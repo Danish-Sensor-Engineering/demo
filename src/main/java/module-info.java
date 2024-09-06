@@ -13,6 +13,9 @@ module dse.explorer {
     requires io.fair_acc.dataset;
     requires org.jetbrains.annotations;
 
+    requires org.kordamp.ikonli.core;
+    requires org.kordamp.ikonli.javafx;
+
     opens dse.explorer to javafx.fxml;
     exports dse.explorer;
 }

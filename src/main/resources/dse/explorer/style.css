@@ -1,72 +1,20 @@
 @font-face {
-    src: url("../../fonts/Inter-VariableFont_opsz,wght.ttf");
-}
-
-@font-face {
-    src: url("../../fonts/Hack-Bold.ttf");
-}
-
-@font-face {
-    src: url("../../fonts/Hack-Regular.ttf");
+    src: url("../../fonts/Jura-VariableFont_wght.ttf");
 }
 
 .root {
-    -fx-font-family: "Inter", helvetica, arial, sans-serif;
+    -fx-font-family: "Jura", helvetica, arial, sans-serif;
     -fx-font-weight: normal;
     -fx-font-size: 16px;
 }
 
-/*
-.axis-label {
-    -fx-text-fill: #4682b4;
-}
 
-.chart-legend {
-    -fx-background-color:  transparent;
-    -fx-padding: 0px;
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-}
-.chart-legend-item {
-    -fx-padding: 15;
-}
-
-.chart-legend-item-symbol {
-    -fx-background-radius: 0;
-}
-
-.chart-plot-background {
-    -fx-background-color: transparent;
-}
-
-.chart-vertical-grid-lines {
-    -fx-stroke: transparent;
-}
-
-.chart-horizontal-grid-lines {
-    -fx-stroke: #3278fa;
-}
-
-.chart-alternative-row-fill {
-    -fx-fill: transparent;
-    -fx-stroke: transparent;
-    -fx-stroke-width: 0;
-}
-
-.chart-series-line {
-    -fx-stroke: red;
-    -fx-stroke-width: 2px;
-    -fx-effect: null;
-}
-*/
 .label-error {
-    -fx-font-family: "Hack", helvetica, arial, sans-serif;
     -fx-font-size: 20px;
     -fx-font-weight: bold;
 }
 
 .label-measurement {
-    -fx-font-family: "Hack", helvetica, arial, sans-serif;
     -fx-font-size: 64px;
     -fx-font-weight: bold;
 }
@@ -76,7 +24,25 @@
 }
 
 .label-value {
-    -fx-font-family: "Hack", helvetica, arial, sans-serif;
     -fx-font-size: 24px;
     -fx-font-weight: bold;
 }
+
+
+/* Chart */
+
+.chart-major-grid-lines {
+    -fx-stroke: derive(red, -10%);
+    -fx-stroke-dash-array: 1.5, 2.5;
+    -fx-stroke-width: 0.5;
+    -fx-grid-on-top: true;
+}
+
+.axis-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #4682b4;
+}
+
+.axis-tick-label {}
+.axis-major-tick-mark {}
+.axis-minor-tick-mark {}

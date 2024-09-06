@@ -3,6 +3,7 @@ package dse.explorer;
 import dse.libods.*;
 import io.fair_acc.chartfx.axes.spi.DefaultNumericAxis;
 import io.fair_acc.dataset.spi.DoubleDataSet;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -34,8 +35,6 @@ public class MainController {
     @FXML private Button btnStart;
     @FXML private Button btnStop;
 
-    @FXML public StackPane stackPane;
-
     @FXML private Label labelMessage;
     @FXML private Label labelMeasurement;
     @FXML private Label labelAverage;
@@ -44,10 +43,9 @@ public class MainController {
     @FXML private Label labelFrequency;
 
 
-    private DefaultNumericAxis xAxis = new DefaultNumericAxis();
-    private DefaultNumericAxis yAxis = new DefaultNumericAxis();
-    private io.fair_acc.chartfx.XYChart chart;
-    private ObservableList<DoubleDataSet> observableList = FXCollections.observableArrayList();
+    @FXML private DefaultNumericAxis xAxis;
+    @FXML private DefaultNumericAxis yAxis;
+    @FXML private io.fair_acc.chartfx.XYChart chart;
 
 
     // DSE Sensor Library
@@ -61,9 +59,13 @@ public class MainController {
     private String selectedPort;
     private Integer selectedBaud;
 
+    private ObservableList<DoubleDataSet> observableList = FXCollections.observableArrayList();
     private final StateModel stateModel = new StateModel();
     private EventProcessTask eventProcessTask;
     private Thread thread;
+
+    private ObservableValue<Number> minimumValue;
+    private ObservableValue<Number> maximumValue;
 
 
     @FXML public void initialize() {
@@ -100,43 +102,35 @@ public class MainController {
         });
 
 
-        xAxis.setName("Measurements");
-        xAxis.setAnimated(true);
+        //xAxis.setName("Measurements");
+        xAxis.setAnimated(false);
         xAxis.setForceZeroInRange(false);
         xAxis.setAutoRanging(true);
         xAxis.setAutoRanging(true);
         xAxis.setAutoGrowRanging(true);
         xAxis.set(0,5000);
 
-        yAxis.setName("Distance");
+        //yAxis.setName("Distance");
         yAxis.setUnitScaling(100);  // Factor for conversion
-        yAxis.setAnimated(true);
+        yAxis.setAnimated(false);
         yAxis.setAutoRanging(true);
         yAxis.setAutoGrowRanging(true);
         yAxis.setAutoRangePadding(0.25);
         yAxis.setForceZeroInRange(false);
         yAxis.set(50000, 300000);
 
-        //yAxis.minProperty().bind(stateModel.lowerBound);
-        //yAxis.maxProperty().bind(stateModel.upperBound);
-
         observableList.add(stateModel.dataSet);
-        chart = new io.fair_acc.chartfx.XYChart(xAxis, yAxis);
         chart.getDatasets().addAll(observableList);
         chart.setLegendVisible(false);
-
-        stackPane.getChildren().add(chart);
 
         eventProcessTask = new EventProcessTask(stateModel);
         labelMessage.textProperty().bind(eventProcessTask.messageProperty());
         labelMeasurement.textProperty().bindBidirectional(stateModel.measurementValue, measurementConverter);
         labelAverage.textProperty().bindBidirectional(stateModel.averageValue, measurementConverter);
-        labelMinimum.textProperty().bindBidirectional(stateModel.minimumValue, measurementConverter);
-        labelMaximum.textProperty().bindBidirectional(stateModel.maximumValue, measurementConverter);
         labelFrequency.textProperty().bind(stateModel.frequency.asString());
 
-        //yAxis.lowerBoundProperty().bind(stateModel.lowerBound);
-        //yAxis.upperBoundProperty().bind(stateModel.upperBound);
+        labelMinimum.textProperty().bindBidirectional(yAxis.minProperty(), measurementConverter);
+        labelMaximum.textProperty().bindBidirectional(yAxis.maxProperty(), measurementConverter);
 
         onButtonStart();
     }
@@ -217,10 +211,8 @@ public class MainController {
 
     private void reset() {
 
-        //chart.getXAxis().computePreferredTickUnit(spinnerHistory.getValue());
-        chart.getXAxis().set(0, spinnerHistory.getValue());
-        //chart.getYAxis().set(50000, 300000);
-        chart.getGridRenderer().requestLayout();
+        //chart.getXAxis().set(0, spinnerHistory.getValue());
+        //chart.getGridRenderer().requestLayout();
 
         // Size of moving data points to calculate average on
         int averageOver = spinnerAverage.getValue();

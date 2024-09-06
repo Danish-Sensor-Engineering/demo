@@ -1,8 +1,6 @@
 package dse.explorer;
 
 import dse.libods.TelegramError;
-import io.fair_acc.chartfx.utils.FXUtils;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 
 import java.util.concurrent.Flow;
@@ -46,7 +44,6 @@ public class EventProcessTask extends Task<StateModel> implements Flow.Subscribe
         }
 
         stateModel.setMeasurement(measurement);
-        //updateValue(measurementData);
 
         frequency++;
         long elapsedNanos = System.nanoTime() - lastTimestamp;
