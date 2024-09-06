@@ -2,8 +2,6 @@
 
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.chart.LineChart?>
-<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
@@ -18,10 +16,8 @@
 <?import javafx.scene.layout.StackPane?>
 <?import io.fair_acc.chartfx.axes.spi.DefaultNumericAxis?>
 <?import io.fair_acc.chartfx.XYChart?>
-<!--<?import io.fair_acc.chartfx.plugins.ParameterMeasurements?>-->
-<!--<?import io.fair_acc.chartfx.renderer.spi.ErrorDataSetRenderer?>-->
 
-<BorderPane prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/21.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dse.explorer.MainController">
+<BorderPane prefHeight="1080.0" prefWidth="1920.0" maxHeight="Infinity" maxWidth="Infinity" xmlns="http://javafx.com/javafx/21.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dse.explorer.MainController">
     <stylesheets>
         <URL value="@style.css" />
     </stylesheets>
@@ -100,7 +96,7 @@
                     <!-- <ParameterMeasurements /> -->
                 </plugins>
                 <renderers>
-                    <!--<ErrorDataSetRenderer fx:id="errorDataSetRenderer" />-->
+                    <!-- <ReducingLineRenderer /> -->
                 </renderers>
             </XYChart>
             <!--
@@ -112,7 +108,9 @@
                     <NumberAxis fx:id="yAxis" animated="false" forceZeroInRange="false" autoRanging="false" label="Distance" minorTickVisible="false" tickMarkVisible="false" centerShape="false" lowerBound="50" upperBound="150"/>
                 </yAxis>
             </LineChart>-->
-            <Label fx:id="labelAverage" alignment="TOP_CENTER" translateX="500.0" translateY="-250.0" StackPane.alignment="CENTER" styleClass="label-measurement" />
+            <HBox StackPane.alignment="CENTER" prefWidth="Infinity">
+                <Label fx:id="labelAverage" alignment="TOP_RIGHT"  HBox.hgrow="ALWAYS" maxWidth="Infinity" styleClass="label-measurement" />
+            </HBox>
         </StackPane>
 
     </center>

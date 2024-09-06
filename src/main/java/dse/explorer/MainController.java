@@ -105,10 +105,8 @@ public class MainController {
         //xAxis.setName("Measurements");
         xAxis.setAnimated(false);
         xAxis.setForceZeroInRange(false);
-        xAxis.setAutoRanging(true);
-        xAxis.setAutoRanging(true);
-        xAxis.setAutoGrowRanging(true);
-        xAxis.set(0,5000);
+        xAxis.setAutoRanging(false);
+        xAxis.setAutoGrowRanging(false);
 
         //yAxis.setName("Distance");
         yAxis.setUnitScaling(100);  // Factor for conversion
@@ -210,14 +208,11 @@ public class MainController {
 
 
     private void reset() {
-
-        //chart.getXAxis().set(0, spinnerHistory.getValue());
-        //chart.getGridRenderer().requestLayout();
-
-        // Size of moving data points to calculate average on
-        int averageOver = spinnerAverage.getValue();
-        stateModel.setAverageOver(averageOver);
-        stateModel.setElements(spinnerHistory.getValue());
+        int avgOver = spinnerAverage.getValue();
+        int elements = spinnerHistory.getValue();
+        xAxis.set(0,elements);
+        stateModel.setElements(elements);
+        stateModel.setAverageOver(avgOver);
     }
 
 }

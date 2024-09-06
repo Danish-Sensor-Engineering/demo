@@ -21,6 +21,7 @@ public class Main extends javafx.application.Application {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("main.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         scene.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+        stage.setMaximized(true);   // For fullscreen
         stage.getIcons().add(new Image(Objects.requireNonNull(Main.class.getResourceAsStream("/icon.png"))));
         stage.setTitle("ODS Explorer - Danish Sensor Engineering");
         stage.setScene(scene);

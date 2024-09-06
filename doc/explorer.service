@@ -1,0 +1,11 @@
+[Unit]
+Description=DSE Explorer
+
+[Service]
+Type=simple
+Restart=on-failure
+ExecStart=/opt/dse/explorer/run.sh
+SyslogIdentifier=dse-explorer
+
+[Install]
+WantedBy=default.target
