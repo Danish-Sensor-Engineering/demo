@@ -99,15 +99,6 @@
                     <!-- <ReducingLineRenderer /> -->
                 </renderers>
             </XYChart>
-            <!--
-            <LineChart   animated="false" createSymbols="false">
-                <xAxis>
-                    <NumberAxis animated="false" forceZeroInRange="false" label="Time" minorTickVisible="false" tickLabelsVisible="false" tickMarkVisible="false" fx:id="xAxis" />
-                </xAxis>
-                <yAxis>
-                    <NumberAxis fx:id="yAxis" animated="false" forceZeroInRange="false" autoRanging="false" label="Distance" minorTickVisible="false" tickMarkVisible="false" centerShape="false" lowerBound="50" upperBound="150"/>
-                </yAxis>
-            </LineChart>-->
             <HBox StackPane.alignment="CENTER" prefWidth="Infinity">
                 <Label fx:id="labelAverage" alignment="TOP_RIGHT"  HBox.hgrow="ALWAYS" maxWidth="Infinity" styleClass="label-measurement" />
             </HBox>
