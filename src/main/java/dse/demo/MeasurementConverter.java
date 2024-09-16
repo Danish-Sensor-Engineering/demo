@@ -1,4 +1,4 @@
-package dse.explorer;
+package dse.demo;
 
 import javafx.util.StringConverter;
 

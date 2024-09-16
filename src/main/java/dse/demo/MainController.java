@@ -1,6 +1,6 @@
-package dse.explorer;
+package dse.demo;
 
-import dse.libods.*;
+import dse.lib.*;
 import io.fair_acc.chartfx.axes.spi.DefaultNumericAxis;
 import io.fair_acc.dataset.spi.DoubleDataSet;
 import javafx.collections.FXCollections;
@@ -163,12 +163,10 @@ public class MainController {
         if(selectedPort.equals("Demo")) {
             demoSensor = new DemoSensor();
             demoSensor.setTelegramHandler(new TelegramHandler16Bit());
-            demoSensor.setAverageOver(spinnerSensorAvg.getValue());
             demoSensor.subscribe(eventProcessTask);
             demoSensor.start();
         } else {
             serialSensor = new SerialSensor();
-            serialSensor.setAverageOver(spinnerSensorAvg.getValue());
             switch (selectedType) {
                 case "16bit" -> serialSensor.setTelegramHandler(new TelegramHandler16Bit());
                 case "18bit" -> serialSensor.setTelegramHandler(new TelegramHandler18Bit());

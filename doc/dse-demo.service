@@ -1,0 +1,11 @@
+[Unit]
+Description=DSE Demo
+
+[Service]
+Type=simple
+Restart=on-failure
+ExecStart=/opt/dse/demo/run.sh
+SyslogIdentifier=dse-demo
+
+[Install]
+WantedBy=default.target

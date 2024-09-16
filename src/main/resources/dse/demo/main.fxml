@@ -17,7 +17,7 @@
 <?import io.fair_acc.chartfx.axes.spi.DefaultNumericAxis?>
 <?import io.fair_acc.chartfx.XYChart?>
 
-<BorderPane prefHeight="1080.0" prefWidth="1920.0" maxHeight="Infinity" maxWidth="Infinity" xmlns="http://javafx.com/javafx/21.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dse.explorer.MainController">
+<BorderPane prefHeight="1080.0" prefWidth="1920.0" maxHeight="Infinity" maxWidth="Infinity" xmlns="http://javafx.com/javafx/21.0.4" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dse.demo.MainController">
     <stylesheets>
         <URL value="@style.css" />
     </stylesheets>

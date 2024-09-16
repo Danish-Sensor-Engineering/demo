@@ -1,4 +1,4 @@
-package dse.explorer;
+package dse.demo;
 
 import java.util.Arrays;
 import java.util.Objects;

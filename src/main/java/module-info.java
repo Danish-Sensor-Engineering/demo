@@ -1,4 +1,4 @@
-module dse.explorer {
+module dse.demo {
     requires static java.annotation;
 
     requires transitive javafx.graphics;
@@ -7,7 +7,7 @@ module dse.explorer {
     requires atlantafx.base;
 
     requires com.fazecast.jSerialComm;
-    requires dse.libods;
+    requires dse.lib;
     requires org.slf4j;
     requires io.fair_acc.chartfx;
     requires io.fair_acc.dataset;
@@ -16,6 +16,6 @@ module dse.explorer {
     requires org.kordamp.ikonli.core;
     requires org.kordamp.ikonli.javafx;
 
-    opens dse.explorer to javafx.fxml;
-    exports dse.explorer;
+    opens dse.demo to javafx.fxml;
+    exports dse.demo;
 }

@@ -1,6 +1,6 @@
-package dse.explorer;
+package dse.demo;
 
-import dse.libods.TelegramError;
+import dse.lib.TelegramError;
 import javafx.concurrent.Task;
 
 import java.util.concurrent.Flow;

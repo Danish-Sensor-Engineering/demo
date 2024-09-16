@@ -1,4 +1,4 @@
-package dse.explorer;
+package dse.demo;
 
 import atlantafx.base.theme.PrimerLight;
 import javafx.application.Platform;

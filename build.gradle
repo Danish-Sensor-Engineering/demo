@@ -20,8 +20,8 @@ tasks.withType(JavaCompile) {
 }
 
 application {
-    mainModule = 'dse.explorer'
-    mainClass = 'dse.explorer.Main'
+    mainModule = 'dse.demo'
+    mainClass = 'dse.demo.Main'
 }
 
 java {
@@ -47,8 +47,8 @@ dependencies {
     implementation 'com.fazecast:jSerialComm:[2.0.0,3.0.0)'
     implementation 'org.kordamp.ikonli:ikonli-javafx:12.3.1'
     implementation 'io.fair-acc:chartfx:11.3.1'
-    //implementation 'com.github.Danish-Sensor-Engineering:libods-java:3.1.5'
-    implementation 'dse.libs:libods:3.1.1'
+    //implementation 'com.github.Danish-Sensor-Engineering:libdse-java:[1.0.0,2.0.0)'
+    implementation 'dse.libs:libdse:[1.0.0,2.0.0)'
 }
 
 test {
