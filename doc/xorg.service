@@ -1,0 +1,11 @@
+[Unit]
+Description=Xorg
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/lib/xorg/Xorg :0 -nocursor -br -s 60 v -quiet
+SyslogIdentifier=xorg
+
+[Install]
+WantedBy=default.target

@@ -1,14 +1,12 @@
 package dse.explorer;
 
 import dse.libods.*;
-import javafx.application.Platform;
+import io.fair_acc.chartfx.axes.spi.DefaultNumericAxis;
+import io.fair_acc.dataset.spi.DoubleDataSet;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
@@ -16,107 +14,135 @@ import javafx.scene.control.Spinner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
+import java.util.*;
 
 
-public class MainController implements TelegramListener {
+public class MainController {
 
     private final static Logger log = LoggerFactory.getLogger(MainController.class);
 
 
-    @FXML private Spinner<Integer> skip;
-    @FXML private Spinner<Integer> avg;
-    @FXML private Spinner<Integer> points;
+    @FXML private Spinner<Integer> spinnerSensorAvg;
+    @FXML private Spinner<Integer> spinnerAverage;
+    @FXML private Spinner<Integer> spinnerHistory;
 
     @FXML private ChoiceBox<String> choiceSensorType;
-
     @FXML private ChoiceBox<String> choiceSensorSerialPort;
-
     @FXML private ChoiceBox<Integer> choiceSensorBaudRate;
 
     @FXML private Button btnStart;
-
     @FXML private Button btnStop;
 
-    @FXML private LineChart<Number, Number> dataChart;
-    @FXML private NumberAxis xAxis;
-
-    @FXML private Label lastErrorMessage;
-
-    @FXML private Label lastDistanceResult;
-
-    @FXML private Label averageDistance;
-    @FXML private Label minimumDistance;
-    @FXML private Label maximumDistance;
+    @FXML private Label labelMessage;
+    @FXML private Label labelMeasurement;
+    @FXML private Label labelAverage;
+    @FXML private Label labelMinimum;
+    @FXML private Label labelMaximum;
+    @FXML private Label labelFrequency;
 
 
-    private final ObservableList<XYChart.Series<Number, Number>> observableList1 = FXCollections.observableArrayList();
-    private final ObservableList<XYChart.Series<Number, Number>> observableList2 = FXCollections.observableArrayList();
-    private final XYChart.Series<Number, Number> numberSeries1 = new XYChart.Series<>();
-    private final XYChart.Series<Number, Number> numberSeries2 = new XYChart.Series<>();
+    @FXML private DefaultNumericAxis xAxis;
+    @FXML private DefaultNumericAxis yAxis;
+    @FXML private io.fair_acc.chartfx.XYChart chart;
+
 
     // DSE Sensor Library
-    private final SerialSensor serialSensor = new SerialSensor();
-    private final TestSensor testSensor = new TestSensor();
+    private SerialSensor serialSensor;
+    private DemoSensor demoSensor;
+
+    // FIXME: Hardcoded conversion factor for compact-line
+    private final MeasurementConverter measurementConverter = new MeasurementConverter(100);
 
     private String selectedType;
     private String selectedPort;
     private Integer selectedBaud;
-    private int counter = 0;
+
+    private final ObservableList<DoubleDataSet> observableList = FXCollections.observableArrayList();
+    private final StateModel stateModel = new StateModel();
+    private EventProcessTask eventProcessTask;
+    private Thread thread;
 
 
     @FXML public void initialize() {
         log.debug("initialize()");
+
         choiceSensorType.getItems().addAll("16bit", "18bit");
+        choiceSensorType.getSelectionModel().select(0);
+
         choiceSensorBaudRate.getItems().addAll(38400, 115200);
+        choiceSensorBaudRate.getSelectionModel().select(0);
+
         choiceSensorSerialPort.getItems().add("Demo");
         choiceSensorSerialPort.getItems().addAll(SerialSensor.getSerialPorts());
+        choiceSensorSerialPort.getSelectionModel().select(0);
 
-        skip.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            if(!newValue.matches("\\d*")) {
-                skip.getEditor().setText(oldValue);
+        int idx = 0;
+        for(String port : choiceSensorSerialPort.getItems()) {
+            if(port.equals("ttyUSB0")) {
+                choiceSensorSerialPort.getSelectionModel().select(idx);
             }
-        });
-
-        avg.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            if(!newValue.matches("\\d*")) {
-                skip.getEditor().setText(oldValue);
-            }
-        });
-
-        points.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            if(!newValue.matches("\\d*")) {
-                points.getEditor().setText(oldValue);
-            }
-        });
-
-        try {
-
-            numberSeries1.setName("Measurement");
-            observableList1.add(numberSeries1);
-            dataChart.getData().addAll(observableList1);
-
-            numberSeries2.setName("Average");
-            observableList2.add(numberSeries2);
-            dataChart.getData().addAll(observableList2);
-
-        } catch (Exception ignored) {
+            idx++;
         }
+
+        spinnerAverage.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            if(!newValue.matches("\\d*")) {
+                spinnerSensorAvg.getEditor().setText(oldValue);
+            }
+        });
+
+        spinnerHistory.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            if(!newValue.matches("\\d*")) {
+                spinnerHistory.getEditor().setText(oldValue);
+            }
+        });
+
+
+        //xAxis.setName("Measurements");
+        xAxis.setAnimated(false);
+        xAxis.setForceZeroInRange(false);
+        xAxis.setAutoRanging(false);
+        xAxis.setAutoGrowRanging(false);
+
+        //yAxis.setName("Distance");
+        yAxis.setUnitScaling(100);  // Factor for conversion
+        yAxis.setAnimated(false);
+        yAxis.setAutoRanging(true);
+        yAxis.setAutoGrowRanging(true);
+        yAxis.setAutoRangePadding(0.25);
+        yAxis.setForceZeroInRange(false);
+        yAxis.set(50000, 300000);
+
+        observableList.add(stateModel.dataSet);
+        chart.getDatasets().addAll(observableList);
+        chart.setLegendVisible(false);
+
+        eventProcessTask = new EventProcessTask(stateModel);
+        labelMessage.textProperty().bind(eventProcessTask.messageProperty());
+        labelMeasurement.textProperty().bindBidirectional(stateModel.measurementValue, measurementConverter);
+        labelAverage.textProperty().bindBidirectional(stateModel.averageValue, measurementConverter);
+        labelFrequency.textProperty().bind(stateModel.frequency.asString());
+
+        labelMinimum.textProperty().bindBidirectional(yAxis.minProperty(), measurementConverter);
+        labelMaximum.textProperty().bindBidirectional(yAxis.maxProperty(), measurementConverter);
+
+        onButtonStart();
     }
 
 
     @FXML private void onSelectModel(ActionEvent ignoredE) {
-        log.info(choiceSensorType.getSelectionModel().getSelectedItem());
+        //log.info(choiceSensorType.getSelectionModel().getSelectedItem());
         selectedType = choiceSensorType.getSelectionModel().getSelectedItem();
     }
 
+
     @FXML private void onSelectPort(ActionEvent ignoredE) {
-        log.info(choiceSensorSerialPort.getSelectionModel().getSelectedItem());
+        //log.info(choiceSensorSerialPort.getSelectionModel().getSelectedItem());
         selectedPort = choiceSensorSerialPort.getSelectionModel().getSelectedItem();
     }
 
+
     @FXML private void onSelectBaud(ActionEvent ignoredE) {
-        log.info(String.valueOf(choiceSensorBaudRate.getSelectionModel().getSelectedItem()));
+        //log.info(String.valueOf(choiceSensorBaudRate.getSelectionModel().getSelectedItem()));
         selectedBaud = choiceSensorBaudRate.getSelectionModel().getSelectedItem();
     }
 
@@ -126,95 +152,61 @@ public class MainController implements TelegramListener {
 
         if(!Objects.equals(selectedPort, "Demo") && (selectedPort == null || selectedType == null || selectedBaud == null) ) {
             log.warn("onButtonStart() - options missing");
-            lastErrorMessage.setText("Missing options");
+            labelMessage.setText("Missing options");
             return;
         }
 
+        reset();
         btnStart.setDisable(true);
         btnStop.setDisable(false);
-        lastErrorMessage.setText("");
-
-        serialSensor.interval = skip.getValue();
-        serialSensor.movingPoints = avg.getValue();
 
         if(selectedPort.equals("Demo")) {
-            testSensor.setTelegramHandler(new TelegramHandler16Bit());
-            testSensor.start();
-            testSensor.addEventListener(this);
+            demoSensor = new DemoSensor();
+            demoSensor.setTelegramHandler(new TelegramHandler16Bit());
+            demoSensor.setAverageOver(spinnerSensorAvg.getValue());
+            demoSensor.subscribe(eventProcessTask);
+            demoSensor.start();
         } else {
+            serialSensor = new SerialSensor();
+            serialSensor.setAverageOver(spinnerSensorAvg.getValue());
             switch (selectedType) {
                 case "16bit" -> serialSensor.setTelegramHandler(new TelegramHandler16Bit());
                 case "18bit" -> serialSensor.setTelegramHandler(new TelegramHandler18Bit());
                 default -> log.warn("Unknown sensor type: {}", selectedType);
             }
             serialSensor.openPort(selectedPort, selectedBaud);
-            serialSensor.addEventListener(this);
+            serialSensor.subscribe(eventProcessTask);
+            serialSensor.start();
         }
+
+        thread = new Thread(eventProcessTask);
+        thread.start();
     }
 
 
-    @FXML private void onButtonStop() {
+    @FXML private void onButtonStop() throws Exception {
         log.debug("onButtonStop()");
 
         if(selectedPort.equals("Demo")) {
-            testSensor.removeEventListener(this);
-            testSensor.stop();
+            demoSensor.stop();
+            demoSensor = null;
         } else {
-            serialSensor.removeEventListener(this);
-            serialSensor.closePort();
+            serialSensor.stop();
+            serialSensor = null;
         }
 
-        numberSeries1.getData().clear();
-        numberSeries2.getData().clear();
-        counter = 0;
-
+        thread.join();
         btnStart.setDisable(false);
         btnStop.setDisable(true);
     }
 
 
-     public void onTelegramResultEvent(TelegramResultEvent event) {
-
-        int measurement = event.getMeasurement();
-        int average = event.getAverage();
-        int minimum = event.getMinimum();
-        int maximum = event.getMaximum();
-
-        Platform.runLater(() -> {
-            lastDistanceResult.setText(Integer.toString(measurement));
-            averageDistance.setText(String.valueOf(average));
-            minimumDistance.setText(String.valueOf(minimum));
-            maximumDistance.setText(String.valueOf(maximum));
-
-            numberSeries1.getData().add(new XYChart.Data<>(counter, measurement));
-            numberSeries2.getData().add(new XYChart.Data<>(counter, average));
-
-            if(numberSeries1.getData().size() > points.getValue()) {
-                numberSeries1.getData().remove(0, 5);
-            }
-
-            if(numberSeries2.getData().size() > points.getValue()) {
-                numberSeries2.getData().remove(0, 5);
-            }
-
-            counter++;
-            if(counter > points.getValue()) {
-                lastErrorMessage.setText("");
-                xAxis.autoRangingProperty().set(false);
-                xAxis.setUpperBound(counter);
-                counter = 0;
-            }
-
-         });
-
-     }
-
-
-    public void onTelegramErrorEvent(TelegramErrorEvent event) {
-        Platform.runLater(() -> {
-            lastErrorMessage.setText(event.toString());
-            System.err.println(event);
-        });
+    private void reset() {
+        int avgOver = spinnerAverage.getValue();
+        int elements = spinnerHistory.getValue();
+        xAxis.set(0,elements);
+        stateModel.setElements(elements);
+        stateModel.setAverageOver(avgOver);
     }
 
 }

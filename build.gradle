@@ -25,13 +25,15 @@ application {
 }
 
 java {
-    modularity.inferModulePath.set(false)
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+        //vendor = JvmVendorSpec.BELLSOFT
+    }
+        modularity.inferModulePath.set(false)
 }
 
 javafx {
-    version = '21.0.3'
+    version = '21.0.4'
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.graphics' ]
 }
 
@@ -43,8 +45,10 @@ dependencies {
     implementation "javax.annotation:javax.annotation-api:1.3.2"                    // Used by afterburner.fx
     implementation 'io.github.mkpaz:atlantafx-base:2.0.1'
     implementation 'com.fazecast:jSerialComm:[2.0.0,3.0.0)'
-    implementation 'com.github.Danish-Sensor-Engineering:libods-java:3.0.5              '
-    //implementation 'dse.libs:libods:3.0.4'
+    implementation 'org.kordamp.ikonli:ikonli-javafx:12.3.1'
+    implementation 'io.fair-acc:chartfx:11.3.1'
+    //implementation 'com.github.Danish-Sensor-Engineering:libods-java:3.1.5'
+    implementation 'dse.libs:libods:3.1.1'
 }
 
 test {
