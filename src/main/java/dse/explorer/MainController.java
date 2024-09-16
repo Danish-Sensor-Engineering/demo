@@ -3,7 +3,6 @@ package dse.explorer;
 import dse.libods.*;
 import io.fair_acc.chartfx.axes.spi.DefaultNumericAxis;
 import io.fair_acc.dataset.spi.DoubleDataSet;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -12,7 +11,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
-import javafx.scene.layout.StackPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,20 +50,17 @@ public class MainController {
     private SerialSensor serialSensor;
     private DemoSensor demoSensor;
 
-    // FIXME: Hardcodet conversion
+    // FIXME: Hardcoded conversion factor for compact-line
     private final MeasurementConverter measurementConverter = new MeasurementConverter(100);
 
     private String selectedType;
     private String selectedPort;
     private Integer selectedBaud;
 
-    private ObservableList<DoubleDataSet> observableList = FXCollections.observableArrayList();
+    private final ObservableList<DoubleDataSet> observableList = FXCollections.observableArrayList();
     private final StateModel stateModel = new StateModel();
     private EventProcessTask eventProcessTask;
     private Thread thread;
-
-    private ObservableValue<Number> minimumValue;
-    private ObservableValue<Number> maximumValue;
 
 
     @FXML public void initialize() {
@@ -164,7 +159,6 @@ public class MainController {
         reset();
         btnStart.setDisable(true);
         btnStop.setDisable(false);
-
 
         if(selectedPort.equals("Demo")) {
             demoSensor = new DemoSensor();

@@ -1,9 +1,7 @@
 package dse.explorer;
 
 import java.util.Arrays;
-import java.util.DoubleSummaryStatistics;
 import java.util.Objects;
-import java.util.function.DoublePredicate;
 
 import io.fair_acc.dataset.spi.DoubleDataSet;
 import javafx.application.Platform;
@@ -21,7 +19,7 @@ public class StateModel {
     protected IntegerProperty measurementValue = new SimpleIntegerProperty();
     protected IntegerProperty averageValue = new SimpleIntegerProperty();
     protected IntegerProperty frequency = new SimpleIntegerProperty();
-    protected DoubleDataSet dataSet = new DoubleDataSet("Optical Displacement Sensor", elements);
+    protected DoubleDataSet dataSet = new DoubleDataSet("Sensor Data", elements);
 
 
     public void setAverageOver(int averageOver) {
@@ -35,9 +33,7 @@ public class StateModel {
     }
 
     public void setFrequency(int freq) {
-        Platform.runLater(() -> {
-            frequency.setValue(freq);
-        });
+        Platform.runLater(() -> frequency.setValue(freq));
     }
 
     public void setMeasurement(Integer measurement) {

@@ -20,7 +20,7 @@ public class EventProcessTask extends Task<StateModel> implements Flow.Subscribe
 
 
     @Override
-    protected StateModel call() throws Exception {
+    protected StateModel call() {
         updateValue(stateModel);
         return stateModel;
     }
@@ -60,7 +60,7 @@ public class EventProcessTask extends Task<StateModel> implements Flow.Subscribe
 
     @Override
     public void onError(Throwable throwable) {
-        throwable.printStackTrace();
+        System.err.println(throwable.getMessage());
         System.exit(1);
     }
 
