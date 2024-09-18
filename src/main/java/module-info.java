@@ -7,7 +7,7 @@ module dse.demo {
     requires atlantafx.base;
 
     requires com.fazecast.jSerialComm;
-    requires dse.lib;
+    requires dse;
     requires org.slf4j;
     requires io.fair_acc.chartfx;
     requires io.fair_acc.dataset;
