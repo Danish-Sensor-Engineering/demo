@@ -1,6 +1,14 @@
 package dse.demo;
 
-import dse.lib.*;
+import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import dse.lib.DemoSensor;
+import dse.lib.SerialSensor;
+import dse.lib.TelegramHandler16Bit;
+import dse.lib.TelegramHandler18Bit;
 import io.fair_acc.chartfx.axes.spi.DefaultNumericAxis;
 import io.fair_acc.dataset.spi.DoubleDataSet;
 import javafx.collections.FXCollections;
@@ -11,21 +19,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 
 public class MainController {
 
     private final static Logger log = LoggerFactory.getLogger(MainController.class);
 
-
-    @FXML private Spinner<Integer> spinnerSensorAvg;
-    @FXML private Spinner<Integer> spinnerAverage;
     @FXML private Spinner<Integer> spinnerHistory;
-
     @FXML private ChoiceBox<String> choiceSensorType;
     @FXML private ChoiceBox<String> choiceSensorSerialPort;
     @FXML private ChoiceBox<Integer> choiceSensorBaudRate;
@@ -39,7 +39,6 @@ public class MainController {
     @FXML private Label labelMinimum;
     @FXML private Label labelMaximum;
     @FXML private Label labelFrequency;
-
 
     @FXML private DefaultNumericAxis xAxis;
     @FXML private DefaultNumericAxis yAxis;
@@ -84,11 +83,12 @@ public class MainController {
             idx++;
         }
 
+        /*
         spinnerAverage.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             if(!newValue.matches("\\d*")) {
                 spinnerSensorAvg.getEditor().setText(oldValue);
             }
-        });
+        }); */
 
         spinnerHistory.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             if(!newValue.matches("\\d*")) {
@@ -119,7 +119,7 @@ public class MainController {
         eventProcessTask = new EventProcessTask(stateModel);
         labelMessage.textProperty().bind(eventProcessTask.messageProperty());
         labelMeasurement.textProperty().bindBidirectional(stateModel.measurementValue, measurementConverter);
-        labelAverage.textProperty().bindBidirectional(stateModel.averageValue, measurementConverter);
+        //labelAverage.textProperty().bindBidirectional(stateModel.averageValue, measurementConverter);
         labelFrequency.textProperty().bind(stateModel.frequency.asString());
 
         labelMinimum.textProperty().bindBidirectional(yAxis.minProperty(), measurementConverter);
@@ -200,11 +200,9 @@ public class MainController {
 
 
     private void reset() {
-        int avgOver = spinnerAverage.getValue();
         int elements = spinnerHistory.getValue();
         xAxis.set(0,elements);
         stateModel.setElements(elements);
-        stateModel.setAverageOver(avgOver);
     }
 
 }
