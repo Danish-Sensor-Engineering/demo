@@ -36,7 +36,6 @@ public class EventProcessTask extends Task<StateModel> implements Flow.Subscribe
 
     @Override
     public void onNext(Integer measurement) {
-
         if(measurement < 99) {
             updateMessage(TelegramError.getError(measurement));
             subscription.request(1);

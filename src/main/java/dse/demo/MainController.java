@@ -35,7 +35,6 @@ public class MainController {
 
     @FXML private Label labelMessage;
     @FXML private Label labelMeasurement;
-    @FXML private Label labelAverage;
     @FXML private Label labelMinimum;
     @FXML private Label labelMaximum;
     @FXML private Label labelFrequency;
@@ -163,8 +162,8 @@ public class MainController {
         if(selectedPort.equals("Demo")) {
             demoSensor = new DemoSensor();
             demoSensor.setTelegramHandler(new TelegramHandler16Bit());
-            demoSensor.subscribe(eventProcessTask);
             demoSensor.start();
+            demoSensor.subscribe(eventProcessTask);
         } else {
             serialSensor = new SerialSensor();
             switch (selectedType) {
@@ -173,8 +172,8 @@ public class MainController {
                 default -> log.warn("Unknown sensor type: {}", selectedType);
             }
             serialSensor.openPort(selectedPort, selectedBaud);
-            serialSensor.subscribe(eventProcessTask);
             serialSensor.start();
+            serialSensor.subscribe(eventProcessTask);
         }
 
         thread = new Thread(eventProcessTask);
@@ -187,10 +186,11 @@ public class MainController {
 
         if(selectedPort.equals("Demo")) {
             demoSensor.stop();
-            demoSensor = null;
+            //demoSensor = null;
         } else {
             serialSensor.stop();
-            serialSensor = null;
+            serialSensor.closePort();
+            //serialSensor = null;
         }
 
         thread.join();
