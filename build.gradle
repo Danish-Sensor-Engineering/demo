@@ -73,12 +73,12 @@ jlink {
 
     // Only works from Java 14+
     jpackage {
-        imageName = "ODS-Explorer"
+        imageName = "DSE-Demo"
         skipInstaller = true
-        installerName = "ods-explorer-${osdetector.arch}"
+        installerName = "dse-demo-${osdetector.arch}"
         installerOptions += [
                 '--vendor', 'Danish Sensor Engineering',
-                '--description', 'Danish Sensor Engineering - ODS Explorer',
+                '--description', 'Danish Sensor Engineering - Demonstration App',
                 '--copyright', 'Danish Sensor Engineering ApS',
                 '--app-version', version
         ]
@@ -109,9 +109,8 @@ jlink {
             skipInstaller = false
             installerOptions += [
                     '--linux-shortcut',
-                    '--linux-menu-group', 'Internet',
                     '--linux-rpm-license-type', 'APACHE-20',
-                    '--linux-deb-maintainer', 'mark.nellemann@gmail.com',
+                    '--linux-deb-maintainer', 'dse@sensor.dk',
                     //'--icon', 'src/main/resources/icon.png',
             ]
         }
