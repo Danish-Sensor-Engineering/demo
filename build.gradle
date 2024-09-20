@@ -48,7 +48,7 @@ dependencies {
     implementation 'org.kordamp.ikonli:ikonli-javafx:12.3.1'
     implementation 'io.fair-acc:chartfx:11.3.1'
     //implementation 'com.github.Danish-Sensor-Engineering:libdse-java:[1.0.0,2.0.0)'
-    implementation 'dse.libs:libdse:[1.0.0,2.0.0)'
+    implementation 'dse.libs:libdse-java:[1.0.0,2.0.0)'
 }
 
 test {
