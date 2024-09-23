@@ -62,25 +62,30 @@ jlink {
 
     options = [
             '--strip-debug',
-            '--compress', '2',
             '--no-header-files',
             '--no-man-pages'
     ]
     launcher {
-        name = 'ODS Explorer'
+        name = 'DSE-Demo'
         noConsole = true
+        jvmArgs = [
+                '-XX:+ExitOnOutOfMemoryError',
+                '-XX:+UseZGC',
+                '-XX:+ZGenerational',
+                '-XX:ConcGCThreads=1'
+        ]
     }
 
     // Only works from Java 14+
     jpackage {
-        imageName = "DSE-Demo"
+        imageName = "dse-demo"
         skipInstaller = true
-        installerName = "dse-demo-${osdetector.arch}"
+        installerName = "dse-demo_${osdetector.arch}"
         installerOptions += [
+                '--app-version', version,
                 '--vendor', 'Danish Sensor Engineering',
-                '--description', 'Danish Sensor Engineering - Demonstration App',
                 '--copyright', 'Danish Sensor Engineering ApS',
-                '--app-version', version
+                '--description', 'Demonstration App'
         ]
 
         // Requires: https://wixtoolset.org/ to create installer on Windows
