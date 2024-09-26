@@ -78,9 +78,9 @@ jlink {
 
     // Only works from Java 14+
     jpackage {
-        imageName = "dse-demo"
+        imageName = "DSE-Demo"
         skipInstaller = true
-        installerName = "dse-demo_${osdetector.arch}"
+        installerName = "DSE-Demo_${osdetector.arch}"
         installerOptions += [
                 '--app-version', version,
                 '--vendor', 'Danish Sensor Engineering',
@@ -93,9 +93,10 @@ jlink {
             installerType = 'msi'
             skipInstaller = false
             installerOptions += [
-                    '--win-per-user-install',
-                    '--win-dir-chooser',
                     '--win-menu',
+                    '--win-dir-chooser',
+                    '--win-help-url', 'https://github.com/Danish-Sensor-Engineering/dse-demo',
+                    '--win-update-url', 'https://github.com/Danish-Sensor-Engineering/dse-demo/releases',
                     //'--icon', 'src/main/resources/icon.png'
             ]
         }
