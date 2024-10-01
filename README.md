@@ -5,9 +5,6 @@ Small desktop application for demoing our products.
 
 ![Alt text](doc/screenshot.png?raw=true "DSE Demo")
 
-## Download
-
-Find the [latest release](https://github.com/Danish-Sensor-Engineering/dse-demo/releases/latest) for your operating-system and download installer.
 
 ## Notes
 

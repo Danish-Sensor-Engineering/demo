@@ -2,13 +2,10 @@ package dse.demo;
 
 import java.util.Objects;
 
+            import dse.lib.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dse.lib.DemoSensor;
-import dse.lib.SerialSensor;
-import dse.lib.TelegramHandler16Bit;
-import dse.lib.TelegramHandler18Bit;
 import io.fair_acc.chartfx.axes.spi.DefaultNumericAxis;
 import io.fair_acc.dataset.spi.DoubleDataSet;
 import javafx.collections.FXCollections;
@@ -165,7 +162,7 @@ public class MainController {
             demoSensor.start();
             demoSensor.subscribe(eventProcessTask);
         } else {
-            serialSensor = new SerialSensor();
+            serialSensor = new SerialDistanceSensor();
             switch (selectedType) {
                 case "16bit" -> serialSensor.setTelegramHandler(new TelegramHandler16Bit());
                 case "18bit" -> serialSensor.setTelegramHandler(new TelegramHandler18Bit());

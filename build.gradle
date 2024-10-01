@@ -51,10 +51,6 @@ dependencies {
     implementation 'dse.libs:libdse-java:[1.0.0,2.0.0)'
 }
 
-test {
-    useJUnitPlatform()
-}
-
 jlink {
 
     forceMerge 'org.slf4j'

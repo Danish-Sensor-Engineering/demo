@@ -55,7 +55,7 @@
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="3">
                 <Label text="Elements" />
-                <Spinner fx:id="spinnerHistory" editable="true" initialValue="2250" max="15000" min="500" prefWidth="100.0" />
+                <Spinner fx:id="spinnerHistory" editable="true" initialValue="2250" max="15000" min="500" prefWidth="100.0" amountToStepBy="50" />
             </HBox>
 
             <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="4">
